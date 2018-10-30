@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStoreReadModelBenchMark", "EventStoreReadModelBenchMark\EventStoreReadModelBenchMark.csproj", "{D1C4F840-4698-4022-AB66-01C384907789}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStoreBenchMark", "EventStoreBenchMark\EventStoreBenchMark.csproj", "{28E60927-3ECE-4E9E-BAD1-A312823E7A0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDbBenchMark", "MongoDbBenchMark\MongoDbBenchMark.csproj", "{3C4DBD3B-9B60-41E1-AA3D-0E09B96A629E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1C4F840-4698-4022-AB66-01C384907789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1C4F840-4698-4022-AB66-01C384907789}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1C4F840-4698-4022-AB66-01C384907789}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1C4F840-4698-4022-AB66-01C384907789}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28E60927-3ECE-4E9E-BAD1-A312823E7A0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28E60927-3ECE-4E9E-BAD1-A312823E7A0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28E60927-3ECE-4E9E-BAD1-A312823E7A0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28E60927-3ECE-4E9E-BAD1-A312823E7A0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C4DBD3B-9B60-41E1-AA3D-0E09B96A629E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C4DBD3B-9B60-41E1-AA3D-0E09B96A629E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C4DBD3B-9B60-41E1-AA3D-0E09B96A629E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C4DBD3B-9B60-41E1-AA3D-0E09B96A629E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
