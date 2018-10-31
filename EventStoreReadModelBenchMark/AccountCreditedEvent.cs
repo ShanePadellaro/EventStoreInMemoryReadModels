@@ -10,5 +10,7 @@ namespace EventStoreReadModelBenchMark
         {
             Transaction = transaction;
         }
+        public static string Name => DomainEventTypes.AccountCredited.ToString();
+
     }
 }

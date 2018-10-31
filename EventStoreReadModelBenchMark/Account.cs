@@ -10,6 +10,11 @@ namespace EventStoreReadModelBenchMark
         public Statement CurrentStatement { get; set; }
         public List<Statement> Statements { get; set; }
 
+        public Account()
+        {
+            Statements=new List<Statement>();
+        }
+
     }
 
     public class Statement
