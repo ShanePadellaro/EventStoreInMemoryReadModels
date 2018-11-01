@@ -5,7 +5,7 @@ namespace EventStoreReadModelBenchMark.ValueObjects
 {
     public class Transaction 
     {
-        public Transaction(string externalId, Guid accountId, string description, string type, long amount, long tax,
+        public Transaction(string externalId, string accountId, string description, string type, long amount, long tax,
             DateTime billingDate, long taxrate, string countryCode, string currencyCode,
             List<TransactionItem> transactionItems, List<Dictionary<string, object>> properties = null)
         {
@@ -24,7 +24,7 @@ namespace EventStoreReadModelBenchMark.ValueObjects
         }
 
         public string ExternalId { get; private set; }
-        public Guid AccountId { get; private set; }
+        public string AccountId { get; private set; }
         public string Description { get; private set; }
         public string Type { get; private set; }
         public List<Dictionary<string, object>> Properties { get; }

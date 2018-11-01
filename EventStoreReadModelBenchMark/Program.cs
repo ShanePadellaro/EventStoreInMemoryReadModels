@@ -10,6 +10,7 @@ using EventStoreReadModelBenchMark.EventHandlers;
 using EventStoreReadModelBenchMark.Events;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace EventStoreReadModelBenchMark
 {
@@ -35,17 +36,59 @@ namespace EventStoreReadModelBenchMark
             var client = new MongoClient(url);
             _database = client.GetDatabase("concurrency");
 
-            CreateEventStoreConnection();
-            CreatePersistenSubscription();
+//            await GetBalances();
+
+            await CreateEventStoreConnection();
+            await CreatePersistenSubscription();
 
             SubscribeCatchup();
             SubscribePersisten();
 
-            Console.WriteLine("waiting for events. press enter to exit");
-            Console.ReadLine();
+
+            while (true)
+            {
+                Console.WriteLine("waiting for events. press enter to exit");
+                var input = Console.ReadLine();
+                if (input.Equals("s"))
+                {
+                    Console.WriteLine("Creating Statements");
+                    await GetBalances();
+                }
+            }
         }
 
-        
+        private static async Task GetBalances()
+        {
+            var result = await _database.ListCollectionsAsync();
+            var collections = await result.ToListAsync();
+            var names = collections.Select(x => x["name"]?.AsString)
+                .Where(x => x.Contains("Account", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var accountBalances = new Dictionary<string, long>();
+
+            foreach (var name in names)
+            {
+                var transaction = _database.GetCollection<TransactionReadModel>(name).AsQueryable()
+                    .Where(x => x.MetaData.EventCreated <= DateTime.Now).OrderByDescending(x => x.MetaData.EventCreated)
+                    .FirstOrDefault();
+
+                accountBalances.Add(
+                    name.TrimEnd('t', 'r', 'a', 'n', 's', 'a', 'c', 't', 'i', 'o', 'n', 's').TrimEnd('-'),
+                    transaction?.AccountBalance ?? 0);
+            }
+
+            foreach (var account in accountBalances)
+            {
+                var statementCreatedEvent = new StatementCreatedEvent(account.Value, DateTime.UtcNow);
+                var json = JsonConvert.SerializeObject(statementCreatedEvent,
+                    new JsonSerializerSettings() {ContractResolver = new CamelCasePropertyNamesContractResolver()});
+                var jsonBytes = UTF8Encoding.ASCII.GetBytes(json);
+                var e = new EventData(Guid.NewGuid(), "statementCreated", true,
+                    jsonBytes, null);
+
+                await _conn.AppendToStreamAsync(account.Key, ExpectedVersion.Any, e);
+            }
+        }
 
 
         private static async Task GotEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent evt, int? value)
@@ -61,17 +104,18 @@ namespace EventStoreReadModelBenchMark
 
                 var accountId = evt.Event.EventStreamId.Contains("Account", StringComparison.OrdinalIgnoreCase)
                     ? evt.Event.EventStreamId
-                    : throw new Exception("Can't parse streanId");
+                    : throw new Exception("Can't parse streamId");
 
 
-                var lastTransaction = _database.GetCollection<TransactionReadModel>($"{accountId}-transactions").AsQueryable()
-                    .OrderByDescending(x=>x._id).FirstOrDefault();
+                var lastTransaction = _database.GetCollection<TransactionReadModel>($"{accountId}-transactions")
+                    .AsQueryable()
+                    .OrderByDescending(x => x._id).FirstOrDefault();
 
                 if (evt.OriginalEventNumber <= (lastTransaction?.MetaData?.OriginalEventNumber ?? 0))
                     return;
 
                 var accountBalance = lastTransaction?.AccountBalance ?? 0L;
-                
+
 
                 var eventJson = Encoding.UTF8.GetString(evt.Event.Data);
                 TransactionReadModel readModel = null;
@@ -104,7 +148,6 @@ namespace EventStoreReadModelBenchMark
 
                 await _database.GetCollection<TransactionReadModel>($"{accountId}-transactions")
                     .InsertOneAsync(readModel);
-
             }
             catch (Exception e)
             {
@@ -122,19 +165,19 @@ namespace EventStoreReadModelBenchMark
                     return;
 
                 var accountId = e.Event.EventStreamId;
-                if(!_accounts.TryGetValue(accountId, out var account))
-                    _accounts.Add(accountId,account);
+                if (!_accounts.TryGetValue(accountId, out var account))
+                    _accounts.Add(accountId, account);
 
 
                 if (account == null && eventType != DomainEventTypes.AccountOpened)
                     return;
-                
-                var thingy = new SomethingEventTuple(eventData,account,eventType,e.Event.EventStreamId);
+
+                var thingy = new SomethingEventTuple(eventData, account, eventType, e.Event.EventStreamId);
                 thingy = new AccountOpenedEventHandler()
                     .Execute(new AccountDebitedEventHandler()
-                    .Execute(new AccountCreditedEventHandler()
-                    .Execute(new StatementCreatedEventHandler()
-                    .Execute(thingy))));
+                        .Execute(new AccountCreditedEventHandler()
+                            .Execute(new StatementCreatedEventHandler()
+                                .Execute(thingy))));
 
                 _accounts[accountId] = thingy.Account;
 
@@ -172,7 +215,7 @@ namespace EventStoreReadModelBenchMark
             _conn.ConnectToPersistentSubscription(_streamName, "transactionReadModelWriter", GotEvent,
                 userCredentials: _adminCredentials, subscriptionDropped: Dropped);
         }
-        
+
         private static async Task CreatePersistenSubscription()
         {
             PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
@@ -189,18 +232,18 @@ namespace EventStoreReadModelBenchMark
                 Console.WriteLine("PersistentSubscription already exists, using existing one.");
             }
         }
-        
+
         private static async Task CreateEventStoreConnection()
         {
             _conn = EventStoreConnection.Create(
                 ConnectionSettings.Create().KeepReconnecting(),
                 ClusterSettings.Create().DiscoverClusterViaGossipSeeds().SetGossipSeedEndPoints(new[]
-                {
-                    new IPEndPoint(IPAddress.Parse("52.151.78.42"), 2113),
-                    new IPEndPoint(IPAddress.Parse("52.151.79.84"), 2113),
-                    new IPEndPoint(IPAddress.Parse("51.140.14.214"), 2113)
-                })
-                .SetGossipTimeout(TimeSpan.FromMilliseconds(500)).Build());
+                    {
+                        new IPEndPoint(IPAddress.Parse("52.151.78.42"), 2113),
+                        new IPEndPoint(IPAddress.Parse("52.151.79.84"), 2113),
+                        new IPEndPoint(IPAddress.Parse("51.140.14.214"), 2113)
+                    })
+                    .SetGossipTimeout(TimeSpan.FromMilliseconds(500)).Build());
             await _conn.ConnectAsync();
         }
     }
