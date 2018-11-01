@@ -26,17 +26,18 @@ namespace EventStoreReadModelBenchMark
         private static UserCredentials _adminCredentials;
         private static Dictionary<string, Account> _accounts;
         private static Dictionary<string, long> _accountBalances;
+        private static long _startPosition;
 
         static async Task Main(string[] args)
         {
-
             _accounts = new Dictionary<string, Account>();
             _accountBalances = new Dictionary<string, long>();
+            _startPosition = 4352483;
 
             var url = new MongoUrl("mongodb://localhost:27017");
             var client = new MongoClient(url);
             _database = client.GetDatabase("concurrency");
-            
+
 
             Console.WriteLine("Hello World!");
             _total = 0;
@@ -52,12 +53,12 @@ namespace EventStoreReadModelBenchMark
 
             PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
                 .ResolveLinkTos()
-                .StartFrom(4352482);
+                .StartFrom(_startPosition);
 
 
             _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
             _streamName = "$ce-Account";
-            
+
             try
             {
                 await _conn.CreatePersistentSubscriptionAsync(_streamName, "transactionReadModelWriter", settings,
@@ -68,25 +69,11 @@ namespace EventStoreReadModelBenchMark
             {
                 Console.WriteLine("PersistentSubscription already exists, using existing one.");
             }
-            
-            
+
+
             var stopwatch = new Stopwatch();
             SubscribeCatchup();
             SubscribePersisten();
-
-
-//            conn.ConnectToPersistentSubscription(streamName, "examplegroup", (_, x) =>
-//            {
-////                var data = Encoding.ASCII.GetString(x.Event.Data);
-//                var amountString = (string) JObject.Parse(Encoding.UTF8.GetString(x.Event.Data))["Balance"];
-//                if (int.TryParse(amountString, out var amount))
-//                {
-//                    total += amount;
-//                }
-//
-//                Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-//                Console.WriteLine(total);
-//            }, (sub, reason, ex) => { }, adminCredentials);
 
             Console.WriteLine("waiting for events. press enter to exit");
 
@@ -97,24 +84,24 @@ namespace EventStoreReadModelBenchMark
         {
             try
             {
-                if (!Enum.TryParse(evt.Event.EventType,true,out DomainEventTypes eventType))
+                if (!Enum.TryParse(evt.Event.EventType, true, out DomainEventTypes eventType))
                     return;
-                
-                if(eventType != DomainEventTypes.AccountCredited && eventType != DomainEventTypes.AccountDebited)
+
+                if (eventType != DomainEventTypes.AccountCredited && eventType != DomainEventTypes.AccountDebited)
                     return;
-                
-                
+
+
                 var accountId = evt.Event.EventStreamId.Contains("Account", StringComparison.OrdinalIgnoreCase)
                     ? evt.Event.EventStreamId
                     : throw new Exception("Can't parse streanId");
-                
+
                 var summary = _database.GetCollection<AccountsSummary>("accountSummarys")
-                    .Find(s=>s._id.Equals("5bd9c1fddfd1ea0dcece6f26"))
-                    .ToList().FirstOrDefault() ?? new AccountsSummary();
-                
-                if(evt.OriginalEventNumber <= summary.EventNumber)
+                                  .Find(s => s._id.Equals("5bd9c1fddfd1ea0dcece6f26"))
+                                  .ToList().FirstOrDefault() ?? new AccountsSummary();
+
+                if (evt.OriginalEventNumber <= summary.EventNumber)
                     return;
-                
+
                 var accountBalance = 0L;
                 if (summary.AccountBalances.TryGetValue(accountId, out var balance))
                 {
@@ -122,9 +109,9 @@ namespace EventStoreReadModelBenchMark
                 }
                 else
                 {
-                    summary.AccountBalances.Add(accountId,0);
+                    summary.AccountBalances.Add(accountId, 0);
                 }
-                
+
                 var eventJson = Encoding.UTF8.GetString(evt.Event.Data);
                 TransactionReadModel readModel = null;
 
@@ -135,7 +122,7 @@ namespace EventStoreReadModelBenchMark
                         var @event =
                             JsonConvert.DeserializeObject<AccountDebitedEvent>(eventJson);
                         accountBalance -= @event.Transaction.Amount;
-                        readModel = new TransactionReadModel(@event.Transaction,accountBalance);
+                        readModel = new TransactionReadModel(@event.Transaction, accountBalance);
                     }
                         break;
                     case DomainEventTypes.AccountCredited:
@@ -143,8 +130,7 @@ namespace EventStoreReadModelBenchMark
                         var @event =
                             JsonConvert.DeserializeObject<AccountCreditedEvent>(eventJson);
                         accountBalance += @event.Transaction.Amount;
-                        readModel = new TransactionReadModel(@event.Transaction,accountBalance);
-
+                        readModel = new TransactionReadModel(@event.Transaction, accountBalance);
                     }
                         break;
                     default:
@@ -156,12 +142,12 @@ namespace EventStoreReadModelBenchMark
 
                 await _database.GetCollection<TransactionReadModel>($"{accountId}-transactions")
                     .InsertOneAsync(readModel);
-                
+
                 summary.AccountBalances[accountId] = accountBalance;
                 summary.EventNumber = evt.OriginalEventNumber;
-                await _database.GetCollection<AccountsSummary>("accountSummarys").ReplaceOneAsync<AccountsSummary>(x => x._id.Equals(summary._id),
-                    summary,new UpdateOptions() {IsUpsert = true});
-                
+                await _database.GetCollection<AccountsSummary>("accountSummarys").ReplaceOneAsync<AccountsSummary>(
+                    x => x._id.Equals(summary._id),
+                    summary, new UpdateOptions() {IsUpsert = true});
             }
             catch (Exception e)
             {
@@ -175,69 +161,35 @@ namespace EventStoreReadModelBenchMark
             {
                 var eventData = Encoding.UTF8.GetString(e.Event.Data);
                 var eventMeta = Encoding.UTF8.GetString(e.Event.Metadata);
-                
-                if (!Enum.TryParse(e.Event.EventType,true,out DomainEventTypes eventType))
+
+                if (!Enum.TryParse(e.Event.EventType, true, out DomainEventTypes eventType))
                     return;
 
 
-                var account = eventType == DomainEventTypes.AccountOpened
-                    ? null
-                    : _accounts[e.Event.EventStreamId]; 
-                    
-                
+//                var account = eventType == DomainEventTypes.AccountOpened
+//                    ? null
+//                    : _accounts[e.Event.EventStreamId];
+                var accountId = e.Event.EventStreamId;
+                if(!_accounts.TryGetValue(accountId, out var account))
+                    _accounts.Add(accountId,account);
+
+
                 if (account == null && eventType != DomainEventTypes.AccountOpened)
                     return;
+                
+                var thingy = new SomethingEventTuple(eventData,account,eventType,e.Event.EventStreamId);
+                var accountState = new AccountOpenedEventHandler()
+                    .Execute(new AccountDebitedEventHandler()
+                    .Execute(new AccountCreditedEventHandler()
+                    .Execute(new StatementCreatedEventHandler()
+                    .Execute(thingy))));
 
+                _accounts[accountId] = thingy.Account;
 
-                switch (eventType)
-                {
-                    case DomainEventTypes.AccountOpened:
-                    {
-                        var @event =
-                            JsonConvert.DeserializeObject<AccountOpenedEvent>(eventData);
-                        _accounts.Add(e.Event.EventStreamId,
-                            new Account()
-                                {Balance = @event.AccountDetails.StartingBalance, Id = e.Event.EventStreamId});
-                        Console.WriteLine(JsonConvert.SerializeObject(@event));
-                    }
-                        break;
-                    case DomainEventTypes.AccountDebited:
-                    {
-                        var @event =
-                            JsonConvert.DeserializeObject<AccountDebitedEvent>(eventData);
-                        account.Balance -= @event.Transaction.Amount;
-                        Console.WriteLine(JsonConvert.SerializeObject(@event));
-                    }
-                        break;
-                    case DomainEventTypes.AccountCredited:
-                    {
-                        var @event =
-                            JsonConvert.DeserializeObject<AccountCreditedEvent>(eventData);
-                        account.Balance += @event.Transaction.Amount;
-                        account.CurrentStatement?.MakePayment(@event.Transaction.Amount);
-                        Console.WriteLine(JsonConvert.SerializeObject(@event));
-                    }
-                        break;
-                    case DomainEventTypes.StatementCreated:
-                    {
-                        var @event =
-                            JsonConvert.DeserializeObject<StatementCreatedEvent>(eventData);
-                        var statement = new Statement(@event.BillingDate, @event.IncomingBalance)
-                        {
-                            BillingDate = @event.BillingDate, IncomingBalance = @event.IncomingBalance,
-                            CurrentBalance = @event.IncomingBalance
-                        };
-                        if (account.CurrentStatement != null)
-                            account.Statements.Add(account.CurrentStatement);
-
-                        account.CurrentStatement = statement;
-                        Console.WriteLine(JsonConvert.SerializeObject(@event));
-                    }
-                        break;
-                }
                 Console.WriteLine(e.OriginalEventNumber);
                 Console.WriteLine(e.Event.EventNumber);
-                Console.WriteLine(JsonConvert.SerializeObject(account));
+                Console.WriteLine(eventType);
+                Console.WriteLine(JsonConvert.SerializeObject(_accounts[accountId]));
             }
             catch (Exception exception)
             {
@@ -252,7 +204,7 @@ namespace EventStoreReadModelBenchMark
 
         private static void SubscribeCatchup()
         {
-            _conn.SubscribeToStreamFrom(_streamName, 4352482,
+            _conn.SubscribeToStreamFrom(_streamName, _startPosition - 1,
                 new CatchUpSubscriptionSettings(500, 500, true, true, "ReadModel"), GotEvent,
                 subscriptionDropped: Dropped, userCredentials: _adminCredentials);
         }
@@ -265,25 +217,8 @@ namespace EventStoreReadModelBenchMark
 
         private static void SubscribePersisten()
         {
-            _conn.ConnectToPersistentSubscription(_streamName, "transactionReadModelWriter", GotEvent,userCredentials:_adminCredentials, subscriptionDropped: Dropped);
-        }
-
-    }
-
-    public class AccountsSummary
-    {
-        public string _id => "5bd9c1fddfd1ea0dcece6f26";
-        public Dictionary<string, long> AccountBalances { get; set; }
-        public long EventNumber { get; set; }
-
-        public AccountsSummary(Dictionary<string,long> accountBalances)
-        {
-            AccountBalances = accountBalances;
-        }
-
-        public AccountsSummary()
-        {
-           AccountBalances=new Dictionary<string, long>();
+            _conn.ConnectToPersistentSubscription(_streamName, "transactionReadModelWriter", GotEvent,
+                userCredentials: _adminCredentials, subscriptionDropped: Dropped);
         }
     }
 }
