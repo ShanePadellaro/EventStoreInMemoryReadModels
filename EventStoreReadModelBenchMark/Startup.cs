@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Driver;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace EventStoreReadModelBenchMark
@@ -22,6 +23,14 @@ namespace EventStoreReadModelBenchMark
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSingleton<IAccountsRepository, AccountsRepository>();
+
+            services.AddTransient<IMongoDatabase>(s =>
+                {
+                    var url = new MongoUrl("mongodb://localhost:27017");
+                    var client = new MongoClient(url);
+                    return client.GetDatabase("transactions");
+                }
+            );
             services.AddSingleton<IHostedService, ReadModelComposerBackgroundService>();
 
         }

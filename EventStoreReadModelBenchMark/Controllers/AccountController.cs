@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EventStoreReadModelBenchMark.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : ControllerBase
     {
         private readonly IAccountsRepository _accountsRepository;
 
@@ -15,10 +15,20 @@ namespace EventStoreReadModelBenchMark.Controllers
         }
         
         [HttpGet("api/accounts")]
-        public async Task<IDictionary<string,Account>> GetAccounts()
+        public async Task<IDictionary<string,Account>> GetAccountsAsync()
         {
             var accounts = _accountsRepository.GetAccounts();
             return accounts;
+        }
+        
+        [HttpGet("api/accounts/{accountId}")]
+        public async Task<ActionResult<Account>> GetAccountAsync(string accountId)
+        {
+            var accounts = _accountsRepository.GetAccounts();
+            if (!accounts.TryGetValue(accountId, out var account))
+                return NotFound();
+            
+            return account;
         }
     }
 }

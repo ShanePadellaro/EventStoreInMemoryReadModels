@@ -27,9 +27,10 @@ namespace EventStoreReadModelBenchMark
         private static Dictionary<string, long> _accountBalances;
         private static long _startPosition;
 
-        public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository)
+        public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository,IMongoDatabase mongoDatabase)
         {
             _accountsRepository = accountsRepository;
+            _database = mongoDatabase;
         }
         private async Task Start()
         {
@@ -39,9 +40,9 @@ namespace EventStoreReadModelBenchMark
             _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
             _streamName = "$ce-Account";
 
-            var url = new MongoUrl("mongodb://localhost:27017");
-            var client = new MongoClient(url);
-            _database = client.GetDatabase("concurrency");
+//            var url = new MongoUrl("mongodb://localhost:27017");
+//            var client = new MongoClient(url);
+//            _database = client.GetDatabase("concurrency");
 
 //            await GetBalances();
 
@@ -279,4 +280,6 @@ namespace EventStoreReadModelBenchMark
             return _accounts;
         }
     }
+    
+    
 }
