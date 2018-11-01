@@ -1,4 +1,6 @@
-﻿namespace EventStoreReadModelBenchMark
+﻿using EventStoreReadModelBenchMark.Events;
+
+namespace EventStoreReadModelBenchMark
 {
     internal class SomethingEventTuple
     {

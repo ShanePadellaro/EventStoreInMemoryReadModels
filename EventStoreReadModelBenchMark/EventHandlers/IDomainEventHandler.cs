@@ -1,4 +1,4 @@
-﻿namespace EventStoreReadModelBenchMark
+﻿namespace EventStoreReadModelBenchMark.EventHandlers
 {
     internal interface IDomainEventHandler
     {

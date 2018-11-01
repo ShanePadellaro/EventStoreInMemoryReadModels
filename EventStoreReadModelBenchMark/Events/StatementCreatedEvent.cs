@@ -1,6 +1,6 @@
 using System;
 
-namespace EventStoreReadModelBenchMark
+namespace EventStoreReadModelBenchMark.Events
 {
     public class StatementCreatedEvent
     {

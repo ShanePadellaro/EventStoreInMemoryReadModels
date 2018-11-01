@@ -1,6 +1,6 @@
 ﻿using EventStoreReadModelBenchMark.ValueObjects;
 
-namespace EventStoreReadModelBenchMark
+namespace EventStoreReadModelBenchMark.Events
 {
     public class AccountDebitedEvent
     {

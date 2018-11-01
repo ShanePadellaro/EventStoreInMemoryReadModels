@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using EventStoreReadModelBenchMark.Events;
+using Newtonsoft.Json;
 
-namespace EventStoreReadModelBenchMark
+namespace EventStoreReadModelBenchMark.EventHandlers
 {
     internal class StatementCreatedEventHandler : IDomainEventHandler
     {

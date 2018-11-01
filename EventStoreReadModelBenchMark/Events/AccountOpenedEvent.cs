@@ -1,4 +1,6 @@
-﻿namespace EventStoreReadModelBenchMark
+﻿using EventStoreReadModelBenchMark.ValueObjects;
+
+namespace EventStoreReadModelBenchMark.Events
 {
     
     public class AccountOpenedEvent 

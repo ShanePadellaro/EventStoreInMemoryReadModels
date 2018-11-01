@@ -1,4 +1,4 @@
-﻿namespace EventStoreReadModelBenchMark
+﻿namespace EventStoreReadModelBenchMark.Events
 {
     public enum DomainEventTypes
     {
