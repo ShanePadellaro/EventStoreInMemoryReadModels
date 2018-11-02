@@ -9,6 +9,7 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using EventStoreReadModelBenchMark.EventHandlers;
 using EventStoreReadModelBenchMark.Events;
+using EventStoreReadModelBenchMark.Repository;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -27,17 +28,17 @@ namespace EventStoreReadModelBenchMark
         private static Dictionary<string, Account> _accounts;
         private static Dictionary<string, long> _accountBalances;
         private static long _startPosition;
-        private TaxLedger _taxLedger;
-        private FeeLedger _feeLedger;
+        private static TaxLedger _taxLedger;
+        private static FeeLedger _feeLedger;
 
         public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository, IMongoDatabase mongoDatabase
-            , IHostingEnvironment env)
+            , IHostingEnvironment env,ITaxLedgerRepository taxLedgerRepository,IFeeLedgerRepository feeLedgerRepository)
         {
             _accountsRepository = accountsRepository;
             _database = mongoDatabase;
             _env = env;
-            _taxLedger = new TaxLedger();
-            _feeLedger = new FeeLedger();
+            _taxLedger = taxLedgerRepository.GetTaxLedger();
+            _feeLedger = feeLedgerRepository.GetFeeLedger();
         }
 
         private async Task Start()
@@ -262,7 +263,7 @@ namespace EventStoreReadModelBenchMark
                         new IPEndPoint(IPAddress.Parse("52.151.79.84"), 2113),
                         new IPEndPoint(IPAddress.Parse("51.140.14.214"), 2113)
                     })
-                    .SetGossipTimeout(TimeSpan.FromMilliseconds(500)).Build());
+                    .SetGossipTimeout(TimeSpan.FromMilliseconds(500)).Build(),"TransactionService");
             await _conn.ConnectAsync();
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EventStoreReadModelBenchMark.Repository;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +25,9 @@ namespace EventStoreReadModelBenchMark
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSingleton<IAccountsRepository, AccountsRepository>();
-
+            services.AddSingleton<ITaxLedgerRepository, TaxLedgerRepository>();
+            services.AddSingleton<IFeeLedgerRepository, FeeLedgerRepository>();
+            
             services.AddTransient<IMongoDatabase>(s =>
                 {
                     var conventionPack = new  ConventionPack {new CamelCaseElementNameConvention()};

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EventStoreReadModelBenchMark
+namespace EventStoreReadModelBenchMark.Repository
 {
     public class AccountsRepository : IAccountsRepository
     {

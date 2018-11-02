@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EventStoreReadModelBenchMark
 {
-    internal class TaxLedger
+    public class TaxLedger
     {
         public Dictionary<string,Dictionary<int,Dictionary<int,long>>> Countries { get; private set; }
 
