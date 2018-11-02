@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net.Http.Formatting;
 using EventStoreReadModelBenchMark.Events;
 using Newtonsoft.Json;
 
@@ -12,7 +13,7 @@ namespace EventStoreReadModelBenchMark.EventHandlers
                 return state;
 
             var @event =
-                JsonConvert.DeserializeObject<AccountDebitedEvent>(state.Event);
+                JsonConvert.DeserializeObject<AccountDebitedEvent>(state.Event,new JsonSerializerSettings(){ContractResolver = new JsonContractResolver(new JsonMediaTypeFormatter())});
 
             state.Account.Balance += @event.Transaction.Amount;
             state.Account.CurrentStatement?.MakePayment(@event.Transaction.Amount);

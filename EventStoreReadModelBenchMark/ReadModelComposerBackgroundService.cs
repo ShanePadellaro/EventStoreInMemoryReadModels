@@ -16,10 +16,11 @@ using Newtonsoft.Json.Serialization;
 
 namespace EventStoreReadModelBenchMark
 {
-    class ReadModelComposerBackgroundService:BackgroundService
+    class ReadModelComposerBackgroundService : BackgroundService
     {
         private readonly IAccountsRepository _accountsRepository;
         private static IMongoDatabase _database;
+        private readonly IHostingEnvironment _env;
         private static string _streamName;
         private static IEventStoreConnection _conn;
         private static UserCredentials _adminCredentials;
@@ -29,14 +30,16 @@ namespace EventStoreReadModelBenchMark
         private TaxLedger _taxLedger;
         private FeeLedger _feeLedger;
 
-        public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository,IMongoDatabase mongoDatabase)
+        public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository, IMongoDatabase mongoDatabase
+            , IHostingEnvironment env)
         {
             _accountsRepository = accountsRepository;
             _database = mongoDatabase;
+            _env = env;
             _taxLedger = new TaxLedger();
             _feeLedger = new FeeLedger();
-
         }
+
         private async Task Start()
         {
             _accounts = _accountsRepository.GetAccounts();
@@ -45,11 +48,7 @@ namespace EventStoreReadModelBenchMark
             _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
             _streamName = "$ce-Account";
 
-//            var url = new MongoUrl("mongodb://localhost:27017");
-//            var client = new MongoClient(url);
-//            _database = client.GetDatabase("concurrency");
 
-//            await GetBalances();
 
             await CreateEventStoreConnection();
             await CreatePersistenSubscription();
@@ -70,7 +69,7 @@ namespace EventStoreReadModelBenchMark
 //            }
         }
 
-        private  async Task GetBalances()
+        private async Task GetBalances()
         {
             var result = await _database.ListCollectionsAsync();
             var collections = await result.ToListAsync();
@@ -104,7 +103,7 @@ namespace EventStoreReadModelBenchMark
         }
 
 
-        private  async Task GotEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent evt, int? value)
+        private async Task GotEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent evt, int? value)
         {
             try
             {
@@ -186,7 +185,7 @@ namespace EventStoreReadModelBenchMark
                     return;
 
 
-                var state = new State( account,_taxLedger,_feeLedger, eventType,eventData, e.Event.EventStreamId);
+                var state = new State(account, _taxLedger, _feeLedger, eventType, eventData, e.Event.EventStreamId);
                 state = new AccountOpenedEventHandler()
                     .Execute(new AccountDebitedEventHandler()
                         .Execute(new AccountCreditedEventHandler()
@@ -195,16 +194,16 @@ namespace EventStoreReadModelBenchMark
 
                 _accounts[accountId] = state.Account;
 
-                
 
-                Console.WriteLine(e.OriginalEventNumber);
-                Console.WriteLine(e.Event.EventNumber);
-                Console.WriteLine(eventType);
-                Console.WriteLine(JsonConvert.SerializeObject(_accounts[accountId]));
-                Console.WriteLine(JsonConvert.SerializeObject(_taxLedger));
-                Console.WriteLine(JsonConvert.SerializeObject(_feeLedger));
-
-
+                if (_env.IsDevelopment())
+                {
+                    Console.WriteLine(e.OriginalEventNumber);
+                    Console.WriteLine(e.Event.EventNumber);
+                    Console.WriteLine(eventType);
+                    Console.WriteLine(JsonConvert.SerializeObject(_accounts[accountId]));
+                    Console.WriteLine(JsonConvert.SerializeObject(_taxLedger));
+                    Console.WriteLine(JsonConvert.SerializeObject(_feeLedger));
+                }
             }
             catch (Exception exception)
             {
@@ -220,7 +219,7 @@ namespace EventStoreReadModelBenchMark
         private void SubscribeCatchup()
         {
             _conn.SubscribeToStreamFrom(_streamName, _startPosition - 1,
-                new CatchUpSubscriptionSettings(500, 500, true, true, "ReadModel"), GotEvent,
+                new CatchUpSubscriptionSettings(10000, 1000, true, true, "ReadModel"), GotEvent,
                 subscriptionDropped: Dropped, userCredentials: _adminCredentials);
         }
 

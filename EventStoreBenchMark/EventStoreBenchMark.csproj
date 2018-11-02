@@ -10,4 +10,8 @@
       <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.1-rc" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\EventStoreReadModelBenchMark\EventStoreReadModelBenchMark.csproj" />
+    </ItemGroup>
+
 </Project>
