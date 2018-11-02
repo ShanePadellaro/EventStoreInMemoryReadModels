@@ -1,4 +1,5 @@
-﻿using EventStoreReadModelBenchMark.Events;
+﻿using System.Linq;
+using EventStoreReadModelBenchMark.Events;
 using Newtonsoft.Json;
 
 namespace EventStoreReadModelBenchMark.EventHandlers
@@ -16,8 +17,13 @@ namespace EventStoreReadModelBenchMark.EventHandlers
             state.Account.Balance += @event.Transaction.Amount;
             state.Account.CurrentStatement?.MakePayment(@event.Transaction.Amount);
             
+            var countryCode = @event.Transaction.CountryCode;
+            var billingDate = @event.Transaction.BillingDate;
             var tax = @event.Transaction.Tax;
-            state.TaxLedger.AddTax(tax, @event.Transaction.CountryCode,@event.Transaction.BillingDate);
+            state.TaxLedger.RecordTax(tax, countryCode,billingDate);
+
+            var fees = @event.Transaction.TransactionItems.SelectMany(x => x.SubFees);
+            state.FeeLedger.RecordFees(fees, billingDate);
 
             return state;
         }

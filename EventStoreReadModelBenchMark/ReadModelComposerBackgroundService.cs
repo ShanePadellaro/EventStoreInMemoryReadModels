@@ -27,12 +27,14 @@ namespace EventStoreReadModelBenchMark
         private static Dictionary<string, long> _accountBalances;
         private static long _startPosition;
         private TaxLedger _taxLedger;
+        private FeeLedger _feeLedger;
 
         public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository,IMongoDatabase mongoDatabase)
         {
             _accountsRepository = accountsRepository;
             _database = mongoDatabase;
             _taxLedger = new TaxLedger();
+            _feeLedger = new FeeLedger();
 
         }
         private async Task Start()
@@ -182,10 +184,9 @@ namespace EventStoreReadModelBenchMark
 
                 if (account == null && eventType != DomainEventTypes.AccountOpened)
                     return;
-                
 
 
-                var state = new State( account,_taxLedger, eventType,eventData, e.Event.EventStreamId);
+                var state = new State( account,_taxLedger,_feeLedger, eventType,eventData, e.Event.EventStreamId);
                 state = new AccountOpenedEventHandler()
                     .Execute(new AccountDebitedEventHandler()
                         .Execute(new AccountCreditedEventHandler()
@@ -201,6 +202,8 @@ namespace EventStoreReadModelBenchMark
                 Console.WriteLine(eventType);
                 Console.WriteLine(JsonConvert.SerializeObject(_accounts[accountId]));
                 Console.WriteLine(JsonConvert.SerializeObject(_taxLedger));
+                Console.WriteLine(JsonConvert.SerializeObject(_feeLedger));
+
 
             }
             catch (Exception exception)
@@ -269,50 +272,4 @@ namespace EventStoreReadModelBenchMark
             await Start();
         }
     }
-
-    internal class TaxLedger
-    {
-        public Dictionary<string,Dictionary<int,Dictionary<int,long>>> Countries { get; private set; }
-
-        public TaxLedger()
-        {
-            Countries=new Dictionary<string, Dictionary<int, Dictionary<int, long>>>();
-            
-        }
-        public void AddTax(long tax, string countryCode, in DateTime billingDate)
-        {
-            if (!Countries.ContainsKey(countryCode))
-                Countries.Add(countryCode,new Dictionary<int, Dictionary<int, long>>());
-            
-            if(!Countries[countryCode].ContainsKey(billingDate.Year))
-                Countries[countryCode].Add(billingDate.Year,new Dictionary<int, long>());
-            
-            if(!Countries[countryCode][billingDate.Year].ContainsKey(billingDate.Month))
-                Countries[countryCode][billingDate.Year].Add(billingDate.Month,0);
-
-            Countries[countryCode][billingDate.Year][billingDate.Month] += tax;
-        }
-    }
-
-    public interface IAccountsRepository
-    {
-        Dictionary<string, Account> GetAccounts();
-    }
-
-    public class AccountsRepository : IAccountsRepository
-    {
-        private static Dictionary<string, Account> _accounts;
-
-        public AccountsRepository()
-        {
-            _accounts = new Dictionary<string, Account>();
-        }
-
-        public Dictionary<string, Account> GetAccounts()
-        {
-            return _accounts;
-        }
-    }
-    
-    
 }
