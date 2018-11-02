@@ -5,18 +5,18 @@ namespace EventStoreReadModelBenchMark.EventHandlers
 {
     internal class AccountOpenedEventHandler : IDomainEventHandler
     {
-        public SomethingEventTuple Execute(SomethingEventTuple thingy)
+        public State Execute(State state)
         {
-            if (thingy.EventType != DomainEventTypes.AccountOpened)
-                return thingy;
+            if (state.EventType != DomainEventTypes.AccountOpened)
+                return state;
 
             var @event =
-                JsonConvert.DeserializeObject<AccountOpenedEvent>(thingy.Event);
+                JsonConvert.DeserializeObject<AccountOpenedEvent>(state.Event);
 
-            thingy.Account = new Account()
-                {Balance = @event.AccountDetails.StartingBalance, Id = thingy.EventStreamId};
+            state.Account = new Account()
+                {Balance = @event.AccountDetails.StartingBalance, Id = state.EventStreamId};
 
-            return thingy;
+            return state;
         }
     }
 }

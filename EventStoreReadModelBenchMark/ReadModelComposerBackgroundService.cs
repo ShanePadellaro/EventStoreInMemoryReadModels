@@ -26,11 +26,14 @@ namespace EventStoreReadModelBenchMark
         private static Dictionary<string, Account> _accounts;
         private static Dictionary<string, long> _accountBalances;
         private static long _startPosition;
+        private TaxLedger _taxLedger;
 
         public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository,IMongoDatabase mongoDatabase)
         {
             _accountsRepository = accountsRepository;
             _database = mongoDatabase;
+            _taxLedger = new TaxLedger();
+
         }
         private async Task Start()
         {
@@ -179,20 +182,26 @@ namespace EventStoreReadModelBenchMark
 
                 if (account == null && eventType != DomainEventTypes.AccountOpened)
                     return;
+                
 
-                var thingy = new SomethingEventTuple(eventData, account, eventType, e.Event.EventStreamId);
-                thingy = new AccountOpenedEventHandler()
+
+                var state = new State( account,_taxLedger, eventType,eventData, e.Event.EventStreamId);
+                state = new AccountOpenedEventHandler()
                     .Execute(new AccountDebitedEventHandler()
                         .Execute(new AccountCreditedEventHandler()
                             .Execute(new StatementCreatedEventHandler()
-                                .Execute(thingy))));
+                                .Execute(state))));
 
-                _accounts[accountId] = thingy.Account;
+                _accounts[accountId] = state.Account;
+
+                
 
                 Console.WriteLine(e.OriginalEventNumber);
                 Console.WriteLine(e.Event.EventNumber);
                 Console.WriteLine(eventType);
                 Console.WriteLine(JsonConvert.SerializeObject(_accounts[accountId]));
+                Console.WriteLine(JsonConvert.SerializeObject(_taxLedger));
+
             }
             catch (Exception exception)
             {
@@ -258,6 +267,30 @@ namespace EventStoreReadModelBenchMark
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Start();
+        }
+    }
+
+    internal class TaxLedger
+    {
+        public Dictionary<string,Dictionary<int,Dictionary<int,long>>> Countries { get; private set; }
+
+        public TaxLedger()
+        {
+            Countries=new Dictionary<string, Dictionary<int, Dictionary<int, long>>>();
+            
+        }
+        public void AddTax(long tax, string countryCode, in DateTime billingDate)
+        {
+            if (!Countries.ContainsKey(countryCode))
+                Countries.Add(countryCode,new Dictionary<int, Dictionary<int, long>>());
+            
+            if(!Countries[countryCode].ContainsKey(billingDate.Year))
+                Countries[countryCode].Add(billingDate.Year,new Dictionary<int, long>());
+            
+            if(!Countries[countryCode][billingDate.Year].ContainsKey(billingDate.Month))
+                Countries[countryCode][billingDate.Year].Add(billingDate.Month,0);
+
+            Countries[countryCode][billingDate.Year][billingDate.Month] += tax;
         }
     }
 

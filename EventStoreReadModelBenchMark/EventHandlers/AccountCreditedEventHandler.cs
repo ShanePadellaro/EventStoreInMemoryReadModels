@@ -5,19 +5,21 @@ namespace EventStoreReadModelBenchMark.EventHandlers
 {
     internal class AccountCreditedEventHandler : IDomainEventHandler
     {
-        public SomethingEventTuple Execute(SomethingEventTuple thingy)
+        public State Execute(State state)
         {
-            if (thingy.EventType != DomainEventTypes.AccountCredited)
-                return thingy;
+            if (state.EventType != DomainEventTypes.AccountCredited)
+                return state;
 
             var @event =
-                JsonConvert.DeserializeObject<AccountDebitedEvent>(thingy.Event);
+                JsonConvert.DeserializeObject<AccountDebitedEvent>(state.Event);
 
-            thingy.Account.Balance += @event.Transaction.Amount;
-            thingy.Account.CurrentStatement?.MakePayment(@event.Transaction.Amount);
+            state.Account.Balance += @event.Transaction.Amount;
+            state.Account.CurrentStatement?.MakePayment(@event.Transaction.Amount);
+            
+            var tax = @event.Transaction.Tax;
+            state.TaxLedger.AddTax(tax, @event.Transaction.CountryCode,@event.Transaction.BillingDate);
 
-
-            return thingy;
+            return state;
         }
     }
 }

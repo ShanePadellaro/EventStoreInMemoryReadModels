@@ -5,13 +5,13 @@ namespace EventStoreReadModelBenchMark.EventHandlers
 {
     internal class StatementCreatedEventHandler : IDomainEventHandler
     {
-        public SomethingEventTuple Execute(SomethingEventTuple thingy)
+        public State Execute(State state)
         {
-            if (thingy.EventType != DomainEventTypes.StatementCreated)
-                return thingy;
+            if (state.EventType != DomainEventTypes.StatementCreated)
+                return state;
 
             var @event =
-                JsonConvert.DeserializeObject<StatementCreatedEvent>(thingy.Event);
+                JsonConvert.DeserializeObject<StatementCreatedEvent>(state.Event);
 
             var statement = new Statement(@event.BillingDate, @event.IncomingBalance)
             {
@@ -19,13 +19,13 @@ namespace EventStoreReadModelBenchMark.EventHandlers
                 CurrentBalance = @event.IncomingBalance
             };
             
-            if (thingy.Account.CurrentStatement != null)
-                thingy.Account.Statements.Add(thingy.Account.CurrentStatement);
+            if (state.Account.CurrentStatement != null)
+                state.Account.Statements.Add(state.Account.CurrentStatement);
 
-            thingy.Account.CurrentStatement = statement;
+            state.Account.CurrentStatement = statement;
 
 
-            return thingy;
+            return state;
         }
     }
 }

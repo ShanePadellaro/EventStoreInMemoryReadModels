@@ -2,6 +2,6 @@
 {
     internal interface IDomainEventHandler
     {
-        SomethingEventTuple Execute(SomethingEventTuple thingy);
+        State Execute(State state);
     }
 }
