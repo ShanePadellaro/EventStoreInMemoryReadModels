@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventStoreReadModelBenchMark.ReadModels;
 using EventStoreReadModelBenchMark.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -19,7 +20,7 @@ namespace EventStoreReadModelBenchMark.Controllers
             _mongoDatabase = mongoDatabase;
         }
         
-        [HttpGet("api/accounts/{accountId}/statements")]
+        [HttpGet("api/v1/accounts/{accountId}/statements")]
         public async Task<ActionResult<IList<Statement>>> GetStatementsAsync(string accountId)
         {
             if (string.IsNullOrWhiteSpace(accountId))
@@ -32,7 +33,7 @@ namespace EventStoreReadModelBenchMark.Controllers
             return account.Statements;
         }
         
-        [HttpGet("api/accounts/{accountId}/statements/{year}/{month}/transactions")]
+        [HttpGet("api/v1/accounts/{accountId}/statements/{year}/{month}/transactions")]
         public async Task<ActionResult<IList<TransactionReadModel>>> GetTransactionsAsync(string accountId,int year,int month,[FromQuery] int page,[FromQuery]int pageSize)
         {
              

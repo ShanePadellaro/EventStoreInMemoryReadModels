@@ -9,8 +9,10 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using EventStoreReadModelBenchMark.EventHandlers;
 using EventStoreReadModelBenchMark.Events;
+using EventStoreReadModelBenchMark.ReadModels;
 using EventStoreReadModelBenchMark.Repository;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -140,7 +142,7 @@ namespace EventStoreReadModelBenchMark
                         var @event =
                             JsonConvert.DeserializeObject<AccountDebitedEvent>(eventJson);
                         accountBalance -= @event.Transaction.Amount;
-                        readModel = new TransactionReadModel(@event.Transaction, accountBalance);
+                        readModel = new TransactionReadModel(@event.Transaction,evt.Event.Created, accountBalance);
                     }
                         break;
                     case DomainEventTypes.AccountCredited:
@@ -148,7 +150,7 @@ namespace EventStoreReadModelBenchMark
                         var @event =
                             JsonConvert.DeserializeObject<AccountCreditedEvent>(eventJson);
                         accountBalance += @event.Transaction.Amount;
-                        readModel = new TransactionReadModel(@event.Transaction, accountBalance);
+                        readModel = new TransactionReadModel(@event.Transaction,evt.Event.Created, accountBalance);
                     }
                         break;
                     default:
@@ -158,9 +160,21 @@ namespace EventStoreReadModelBenchMark
                 readModel.MetaData.EventNumber = evt.Event.EventNumber;
                 readModel.MetaData.OriginalEventNumber = evt.OriginalEventNumber;
                 readModel.MetaData.EventCreated = evt.Event.Created;
-
+                
+                var taxReadModel = new TaxReadModel(readModel).ToBsonDocument();
+                var billingDate = readModel.Transaction.BillingDate;
+                var transactionType = readModel.Transaction.Description;
+                var transactionId = evt.Event.EventId;
+                var externalId = readModel.Transaction.ExternalId;
+                
+                var feeModels = readModel.Transaction.TransactionItems.SelectMany(x => x.SubFees
+                    .Select(y=>new FeeReadModel(y,billingDate,transactionType,transactionId,externalId,evt.Event.Created).ToBsonDocument())).ToList();
+                feeModels.Add(taxReadModel);
+                
                 await _database.GetCollection<TransactionReadModel>($"{accountId}-transactions")
                     .InsertOneAsync(readModel);
+                await _database.GetCollection<BsonDocument>("finance")
+                    .InsertManyAsync(feeModels.AsEnumerable());
             }
             catch (Exception e)
             {

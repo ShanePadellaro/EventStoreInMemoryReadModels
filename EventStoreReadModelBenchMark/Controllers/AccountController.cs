@@ -14,14 +14,14 @@ namespace EventStoreReadModelBenchMark.Controllers
             _accountsRepository = accountsRepository;
         }
         
-        [HttpGet("api/accounts")]
+        [HttpGet("api/v1/accounts")]
         public async Task<IDictionary<string,Account>> GetAccountsAsync()
         {
             var accounts = _accountsRepository.GetAccounts();
             return accounts;
         }
         
-        [HttpGet("api/accounts/{accountId}")]
+        [HttpGet("api/v1/accounts/{accountId}")]
         public async Task<ActionResult<Account>> GetAccountAsync(string accountId)
         {
             var accounts = _accountsRepository.GetAccounts();

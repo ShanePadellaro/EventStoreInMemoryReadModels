@@ -1,6 +1,6 @@
 ﻿namespace EventStoreReadModelBenchMark.Repository
 {
-    internal interface IFeeLedgerRepository
+    public interface IFeeLedgerRepository
     {
         FeeLedger GetFeeLedger();
     }

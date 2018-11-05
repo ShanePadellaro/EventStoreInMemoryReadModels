@@ -2,18 +2,20 @@ using System;
 using EventStoreReadModelBenchMark.ValueObjects;
 using MongoDB.Bson;
 
-namespace EventStoreReadModelBenchMark
+namespace EventStoreReadModelBenchMark.ReadModels
 {
     public class TransactionReadModel
     {
-        public TransactionReadModel(Transaction transaction, long accountBalance)
+        public TransactionReadModel(Transaction transaction, DateTime createdOn, long accountBalance)
         {
             Transaction = transaction;
+            CreatedOn = createdOn;
             AccountBalance = accountBalance;
             MetaData = new MetaData();
         }
 
         public Transaction Transaction { get; set; }
+        public DateTime CreatedOn { get; }
         public long AccountBalance { get; set; }
         public MetaData MetaData { get; set; }
         public ObjectId _id { get; set; }

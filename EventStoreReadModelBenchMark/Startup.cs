@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -30,8 +31,9 @@ namespace EventStoreReadModelBenchMark
             
             services.AddTransient<IMongoDatabase>(s =>
                 {
-                    var conventionPack = new  ConventionPack {new CamelCaseElementNameConvention()};
-                    ConventionRegistry.Register("camelCase", conventionPack, t => true);
+                    var conventionPack = new  ConventionPack {new CamelCaseElementNameConvention()
+                        ,new EnumRepresentationConvention(BsonType.String)};
+                    ConventionRegistry.Register("default", conventionPack, t => true);
                     var url = new MongoUrl("mongodb://localhost:27017");
                     var client = new MongoClient(url);
                     return client.GetDatabase("transactions");
