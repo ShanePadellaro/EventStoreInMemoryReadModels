@@ -15,11 +15,15 @@
         <PackageReference Include="Hangfire.Mongo">
           <Version>0.5.12</Version>
         </PackageReference>
+        <PackageReference Include="Infrastructure.RabbitMq">
+          <Version>1.0.2</Version>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\EventStoreReadModelBenchMark\EventStoreReadModelBenchMark.csproj" />
+      <ProjectReference Include="..\TransactionService.External\TransactionService.External.csproj" />
     </ItemGroup>
 
 </Project>
