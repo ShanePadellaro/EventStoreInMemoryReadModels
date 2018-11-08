@@ -9,6 +9,10 @@ namespace TransactionService.Api
         public long Balance { get; set; }
         public Statement CurrentStatement { get; set; }
         public List<Statement> Statements { get; set; }
+        public string Name { get; set; }
+        public string ExternalId { get; set; }
+        public string CurrencyCode { get; set; }
+        public string CountryCode { get; set; }
 
         public Account()
         {

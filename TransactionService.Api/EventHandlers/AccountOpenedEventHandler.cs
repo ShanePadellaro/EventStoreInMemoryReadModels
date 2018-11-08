@@ -14,7 +14,14 @@ namespace TransactionService.Api.EventHandlers
                 JsonConvert.DeserializeObject<AccountOpenedEvent>(state.Event);
 
             state.Account = new Account()
-                {Balance = @event.AccountDetails.StartingBalance, Id = state.EventStreamId};
+            {
+                Balance = @event.AccountDetails.StartingBalance,
+                Id = state.EventStreamId,
+                Name = @event.AccountDetails.Name,
+                ExternalId = @event.AccountDetails.Externalid,
+                CurrencyCode = @event.AccountDetails.CurrencyCode,
+                CountryCode = @event.AccountDetails.CountryCode
+            };
 
             return state;
         }
