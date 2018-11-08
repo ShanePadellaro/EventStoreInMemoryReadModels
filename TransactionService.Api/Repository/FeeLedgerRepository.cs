@@ -1,4 +1,6 @@
-﻿namespace TransactionService.Api.Repository
+﻿using TransactionService.Api.Domain;
+
+namespace TransactionService.Api.Repository
 {
     public class FeeLedgerRepository : IFeeLedgerRepository
     {

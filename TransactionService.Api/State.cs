@@ -1,4 +1,5 @@
-﻿using TransactionService.Api.Events;
+﻿using TransactionService.Api.Domain;
+using TransactionService.Api.Events;
 
 namespace TransactionService.Api
 {

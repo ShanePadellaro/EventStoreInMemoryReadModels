@@ -1,37 +1,20 @@
 using System;
-using System.Collections.Generic;
 
-namespace TransactionService.Api
+namespace TransactionService.Api.Domain
 {
-    public class Account
-    {
-        public string Id { get; set; }
-        public long Balance { get; set; }
-        public Statement CurrentStatement { get; set; }
-        public List<Statement> Statements { get; set; }
-        public string Name { get; set; }
-        public string ExternalId { get; set; }
-        public string CurrencyCode { get; set; }
-        public string CountryCode { get; set; }
-
-        public Account()
-        {
-            Statements=new List<Statement>();
-        }
-
-    }
-
     public class Statement
     {
         public Statement(DateTime billingDate, long incomingBalance)
         {
             BillingDate = billingDate;
             IncomingBalance = incomingBalance;
+            Status = StatementStatus.Open;
         }
 
         public long IncomingBalance { get; set;}
         public long CurrentBalance { get; set; }
         public DateTime BillingDate { get; set; }
+        public long ClosingBalance { get; set; }
 
         public void MakePayment(long amount)
         {
@@ -43,5 +26,14 @@ namespace TransactionService.Api
 
             CurrentBalance += amount;
         }
+
+        public void Close()
+        {
+            ClosingBalance = CurrentBalance;
+            CurrentBalance = 0;
+            Status = StatementStatus.Closed;
+        }
+
+        public StatementStatus Status { get; set; }
     }
 }

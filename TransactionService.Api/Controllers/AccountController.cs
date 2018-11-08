@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TransactionService.Api.Domain;
 
 namespace TransactionService.Api.Controllers
 {

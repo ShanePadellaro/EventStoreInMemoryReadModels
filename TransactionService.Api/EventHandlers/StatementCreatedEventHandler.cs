@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using TransactionService.Api.Domain;
 using TransactionService.Api.Events;
 
 namespace TransactionService.Api.EventHandlers
@@ -18,9 +19,13 @@ namespace TransactionService.Api.EventHandlers
                 BillingDate = @event.BillingDate, IncomingBalance = @event.IncomingBalance,
                 CurrentBalance = @event.IncomingBalance
             };
-            
+
             if (state.Account.CurrentStatement != null)
-                state.Account.Statements.Add(state.Account.CurrentStatement);
+            {
+                var currentStatement = state.Account.CurrentStatement;
+                currentStatement.Close();
+                state.Account.Statements.Add(currentStatement);
+            }
 
             state.Account.CurrentStatement = statement;
 

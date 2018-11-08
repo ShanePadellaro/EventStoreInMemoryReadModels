@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using TransactionService.Api.Domain;
 using TransactionService.Api.ReadModels;
 using TransactionService.Api.Repository;
 

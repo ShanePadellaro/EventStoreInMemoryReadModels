@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using TransactionService.Api.Domain;
 using TransactionService.Api.EventHandlers;
 using TransactionService.Api.Events;
 using TransactionService.Api.ReadModels;

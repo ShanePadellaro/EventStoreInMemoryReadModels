@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TransactionService.Api.Domain;
 
 namespace TransactionService.Api
 {

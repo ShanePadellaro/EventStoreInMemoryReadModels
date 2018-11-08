@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TransactionService.Api.ValueObjects;
 
-namespace TransactionService.Api
+namespace TransactionService.Api.Domain
 {
     public class FeeLedger
     {

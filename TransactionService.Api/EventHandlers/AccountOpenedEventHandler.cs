@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using TransactionService.Api.Domain;
 using TransactionService.Api.Events;
 
 namespace TransactionService.Api.EventHandlers

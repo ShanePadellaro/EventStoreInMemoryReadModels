@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TransactionService.Api
+namespace TransactionService.Api.Domain
 {
     public class TaxLedger
     {
