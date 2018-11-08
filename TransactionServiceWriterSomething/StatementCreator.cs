@@ -30,7 +30,7 @@ namespace TransactionServiceWriterSomething
 
             var accountBalances = new Dictionary<string, long>();
 
-            var todaysDate = DateTime.UtcNow.AddMonths(2);
+            var todaysDate = DateTime.UtcNow;
             var firstDayOfMonth = new DateTime(todaysDate.Year,todaysDate.AddMonths(-1).Month,1,23,59,59);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
             
@@ -40,8 +40,6 @@ namespace TransactionServiceWriterSomething
                 var transaction = _database.GetCollection<TransactionReadModel>(name).AsQueryable()
                     .Where(x => x.MetaData.EventCreated <= lastDayOfMonth).OrderByDescending(x => x.MetaData.EventCreated)
                     .FirstOrDefault();
-
-                if(transaction?.AccountBalance == null || transaction.AccountBalance > -1)
                     
                 accountBalances.Add(
                     name.TrimEnd('t', 'r', 'a', 'n', 's', 'a', 'c', 't', 'i', 'o', 'n', 's').TrimEnd('-'),
@@ -50,7 +48,7 @@ namespace TransactionServiceWriterSomething
 
             foreach (var account in accountBalances)
             {
-                var statementCreatedEvent = new StatementCreatedEvent(account.Value, DateTime.UtcNow);
+                var statementCreatedEvent = new StatementCreatedEvent(account.Value, lastDayOfMonth);
                 var json = JsonConvert.SerializeObject(statementCreatedEvent,
                     new JsonSerializerSettings() {ContractResolver = new CamelCasePropertyNamesContractResolver()});
                 var jsonBytes = UTF8Encoding.ASCII.GetBytes(json);
