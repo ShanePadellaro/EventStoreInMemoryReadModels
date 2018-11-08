@@ -32,6 +32,7 @@ namespace EventStoreReadModelBenchMark
         private static long _startPosition;
         private static TaxLedger _taxLedger;
         private static FeeLedger _feeLedger;
+        private static long _lastEventNumber;
 
         public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository, IMongoDatabase mongoDatabase
             , IHostingEnvironment env,ITaxLedgerRepository taxLedgerRepository,IFeeLedgerRepository feeLedgerRepository)
@@ -51,60 +52,13 @@ namespace EventStoreReadModelBenchMark
             _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
             _streamName = "$ce-Account";
 
-
-
             await CreateEventStoreConnection();
             await CreatePersistenSubscription();
 
             SubscribeCatchup();
             SubscribePersisten();
 
-
-//            while (true)
-//            {
-//                Console.WriteLine("waiting for events. press enter to exit");
-//                var input = Console.ReadLine();
-//                if (input.Equals("s"))
-//                {
-//                    Console.WriteLine("Creating Statements");
-//                    await GetBalances();
-//                }
-//            }
         }
-
-        private async Task GetBalances()
-        {
-            var result = await _database.ListCollectionsAsync();
-            var collections = await result.ToListAsync();
-            var names = collections.Select(x => x["name"]?.AsString)
-                .Where(x => x.Contains("Account", StringComparison.OrdinalIgnoreCase)).ToList();
-
-            var accountBalances = new Dictionary<string, long>();
-
-            foreach (var name in names)
-            {
-                var transaction = _database.GetCollection<TransactionReadModel>(name).AsQueryable()
-                    .Where(x => x.MetaData.EventCreated <= DateTime.Now).OrderByDescending(x => x.MetaData.EventCreated)
-                    .FirstOrDefault();
-
-                accountBalances.Add(
-                    name.TrimEnd('t', 'r', 'a', 'n', 's', 'a', 'c', 't', 'i', 'o', 'n', 's').TrimEnd('-'),
-                    transaction?.AccountBalance ?? 0);
-            }
-
-            foreach (var account in accountBalances)
-            {
-                var statementCreatedEvent = new StatementCreatedEvent(account.Value, DateTime.UtcNow);
-                var json = JsonConvert.SerializeObject(statementCreatedEvent,
-                    new JsonSerializerSettings() {ContractResolver = new CamelCasePropertyNamesContractResolver()});
-                var jsonBytes = UTF8Encoding.ASCII.GetBytes(json);
-                var e = new EventData(Guid.NewGuid(), "statementCreated", true,
-                    jsonBytes, null);
-
-                await _conn.AppendToStreamAsync(account.Key, ExpectedVersion.Any, e);
-            }
-        }
-
 
         private async Task GotEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent evt, int? value)
         {
@@ -184,8 +138,7 @@ namespace EventStoreReadModelBenchMark
 
         private async Task GotEvent(EventStoreCatchUpSubscription sub, ResolvedEvent e)
         {
-            try
-            {
+         
                 var eventData = Encoding.UTF8.GetString(e.Event.Data);
 
                 if (!Enum.TryParse(e.Event.EventType, true, out DomainEventTypes eventType))
@@ -219,21 +172,20 @@ namespace EventStoreReadModelBenchMark
                     Console.WriteLine(JsonConvert.SerializeObject(_taxLedger));
                     Console.WriteLine(JsonConvert.SerializeObject(_feeLedger));
                 }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
+
+                _lastEventNumber = e.OriginalEventNumber;
+          
         }
 
         private void Dropped(EventStoreCatchUpSubscription sub, SubscriptionDropReason reason, Exception ex)
         {
-            SubscribeCatchup();
+            SubscribeCatchup(_lastEventNumber);
         }
 
-        private void SubscribeCatchup()
+        private void SubscribeCatchup(long lastEventNumber = 0)
         {
-            _conn.SubscribeToStreamFrom(_streamName, _startPosition - 1,
+            var position = lastEventNumber == 0 ? _startPosition - 1 : lastEventNumber;
+            _conn.SubscribeToStreamFrom(_streamName, position,
                 new CatchUpSubscriptionSettings(10000, 1000, true, true, "ReadModel"), GotEvent,
                 subscriptionDropped: Dropped, userCredentials: _adminCredentials);
         }
