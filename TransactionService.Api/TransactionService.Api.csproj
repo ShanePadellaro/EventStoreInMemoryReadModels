@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <AssemblyName>TransactionService.Api</AssemblyName>
+        <RootNamespace>TransactionService.Api</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.1-rc" />
+      <PackageReference Include="MongoDB.Driver" Version="2.6.1" />
+        <PackageReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+</Project>

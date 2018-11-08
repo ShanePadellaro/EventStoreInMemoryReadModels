@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventStoreReadModelBenchMark\EventStoreReadModelBenchMark.csproj" />
+      <ProjectReference Include="..\TransactionService.Api\TransactionService.Api.csproj" />
     </ItemGroup>
 
 </Project>

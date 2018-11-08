@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EventStore.ClientAPI;
-using EventStoreReadModelBenchMark.Events;
-using EventStoreReadModelBenchMark.ReadModels;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TransactionService.Api.Events;
+using TransactionService.Api.ReadModels;
 
 namespace TransactionServiceWriterSomething
 {
@@ -36,6 +36,7 @@ namespace TransactionServiceWriterSomething
             
             foreach (var name in names)
             {
+                
                 var transaction = _database.GetCollection<TransactionReadModel>(name).AsQueryable()
                     .Where(x => x.MetaData.EventCreated <= lastDayOfMonth).OrderByDescending(x => x.MetaData.EventCreated)
                     .FirstOrDefault();

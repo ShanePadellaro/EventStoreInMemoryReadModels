@@ -4,7 +4,7 @@ namespace TransactionService.External
 {
     public class TransactionRequest
     {
-        public string APIVersion { get; set; }
+        public string ApiVersion = "1";
         public Transaction Transaction { get; set; }
     }
 }
