@@ -12,6 +12,7 @@ using TransactionService.Api;
 using TransactionService.Api.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TransactionService.External.ValueObjects;
 using KeyValuePair = System.Collections.Generic.KeyValuePair;
 
 namespace EventStoreBenchMark
@@ -54,11 +55,11 @@ namespace EventStoreBenchMark
 //            props.Add(new Dictionary<string, object>() {{"item1", "value1"}});
 //            props.Add(new Dictionary<string, object>() {{"item2", "value2"}});
 
-            var subfee1 = new TransactionService.Api.ValueObjects.KeyValuePair("myKey", "MyValue");
+            var subfee1 = new TransactionService.External.ValueObjects.KeyValuePair("myKey", "MyValue");
             var companyId = "b3e4bf26-c93b-41f6-adf1-27b85fa82c91";
             var subfee2 = new Fee(companyId, "MyLabel", 50, "USD", "0.9", 0, 0);
             var subfees = new List<Fee>() {subfee2};
-            var keyValueParis = new List<TransactionService.Api.ValueObjects.KeyValuePair>() {subfee1};
+            var keyValueParis = new List<TransactionService.External.ValueObjects.KeyValuePair>() {subfee1};
             var item = new TransactionItem(100, "B2C Renewal", 1, keyValueParis, subfees);
 
             var transaction = new Transaction("T-00001", Guid.NewGuid().ToString(), "Transaction", "B2C Renewal", 100,

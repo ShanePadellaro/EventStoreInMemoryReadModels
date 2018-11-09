@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Net;
+using EventStore.ClientAPI;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +31,22 @@ namespace TransactionService.Api
             services.AddSingleton<IAccountsRepository, AccountsRepository>();
             services.AddSingleton<ITaxLedgerRepository, TaxLedgerRepository>();
             services.AddSingleton<IFeeLedgerRepository, FeeLedgerRepository>();
+            services.AddSingleton(f =>
+            {
+                var conn = EventStoreConnection.Create(
+                    ConnectionSettings.Create().KeepReconnecting(),
+                    ClusterSettings.Create().DiscoverClusterViaGossipSeeds().SetGossipSeedEndPoints(new[]
+                        {
+                            new IPEndPoint(IPAddress.Parse("52.151.78.42"), 2113),
+                            new IPEndPoint(IPAddress.Parse("52.151.79.84"), 2113),
+                            new IPEndPoint(IPAddress.Parse("51.140.14.214"), 2113)
+                        })
+                        .SetGossipTimeout(TimeSpan.FromMilliseconds(500)).Build(),"TransactionService");
+
+                conn.ConnectAsync().Wait();
+                return conn;
+            });
+            
             
             services.AddTransient<IMongoDatabase>(s =>
                 {

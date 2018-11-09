@@ -7,7 +7,7 @@ namespace TransactionService.External.ValueObjects
     {
         public Transaction(TransactionType type,string externalId, string accountId, string description, string externalTransactionType, long amount, long tax,
             DateTime billingDate, long taxrate, string countryCode, string currencyCode,
-            List<TransactionItem> transactionItems, List<Dictionary<string, object>> properties = null)
+            List<TransactionItem> transactionItems, Dictionary<string, object> properties = null)
         {
             ExternalId = externalId;
             AccountId = accountId;
@@ -29,7 +29,7 @@ namespace TransactionService.External.ValueObjects
         public string Description { get;  set; }
         public string ExternalTransactionType { get;  set; }
         public TransactionType TransactionType { get; set; }
-        public List<Dictionary<string, object>> Properties { get; }
+        public Dictionary<string, object> Properties { get; }
         public long Amount { get;  set; }
         public long Tax { get;  set; }
         public DateTime BillingDate { get; }

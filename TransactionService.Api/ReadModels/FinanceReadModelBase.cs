@@ -1,5 +1,6 @@
 using System;
 using MongoDB.Bson;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {
@@ -8,7 +9,7 @@ namespace TransactionService.Api.ReadModels
         public DateTime CreatedOn { get; set; }
         public ObjectId _id { get; set; }
         public DateTime BillingDate { get; set; }
-        public string TransactionType { get; set; }
+        public TransactionType TransactionType { get; set; }
         public string TransactionId { get; set; }
         public string ExternalId { get; set; }
         public FinanceType Type { get; set; }

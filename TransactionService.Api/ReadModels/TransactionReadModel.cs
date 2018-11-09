@@ -1,6 +1,7 @@
 using System;
 using MongoDB.Bson;
 using TransactionService.Api.ValueObjects;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {

@@ -1,14 +1,15 @@
 using System;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {
     public class TaxReadModel : FinanceReadModelBase
     {
-        public TaxReadModel(DateTime billingDate, string transactionType, string transactionId, string externalId,
+        public TaxReadModel(DateTime billingDate, TransactionType transactionType, string transactionId, string externalId,
             long transactionAmount, long taxAmount, string taxRate)
         {
             BillingDate = billingDate;
-            TransactionType = transactionType ?? throw new ArgumentNullException(nameof(transactionType));
+            TransactionType = transactionType;
             TransactionId = transactionId ?? throw new ArgumentNullException(nameof(transactionId));
             ExternalId = externalId;
             TransactionAmount = transactionAmount;
@@ -19,7 +20,7 @@ namespace TransactionService.Api.ReadModels
         public TaxReadModel(TransactionReadModel transactionReadModel)
         {
             BillingDate = transactionReadModel.Transaction.BillingDate;
-            TransactionType = transactionReadModel.Transaction.Type;
+            TransactionType = transactionReadModel.Transaction.TransactionType;
             TransactionId = transactionReadModel.Transaction.ExternalId;
             ExternalId = transactionReadModel.Transaction.ExternalId;
             TransactionAmount = transactionReadModel.Transaction.Amount;

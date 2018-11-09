@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using TransactionService.Api.Domain;
 using TransactionService.Api.Events;
+using TransactionService.Api.ValueObjects;
 
 namespace TransactionService.Api.EventHandlers
 {
@@ -12,16 +13,16 @@ namespace TransactionService.Api.EventHandlers
                 return state;
 
             var @event =
-                JsonConvert.DeserializeObject<AccountOpenedEvent>(state.Event);
+                JsonConvert.DeserializeObject<AccountDetails>(state.Event);
 
             state.Account = new Account()
             {
-                Balance = @event.AccountDetails.StartingBalance,
+                Balance = @event.StartingBalance,
                 Id = state.EventStreamId,
-                Name = @event.AccountDetails.Name,
-                ExternalId = @event.AccountDetails.Externalid,
-                CurrencyCode = @event.AccountDetails.CurrencyCode,
-                CountryCode = @event.AccountDetails.CountryCode
+                Name = @event.Name,
+                ExternalId = @event.Externalid,
+                CurrencyCode = @event.CurrencyCode,
+                CountryCode = @event.CountryCode
             };
 
             return state;

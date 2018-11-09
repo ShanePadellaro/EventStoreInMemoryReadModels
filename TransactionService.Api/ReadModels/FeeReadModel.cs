@@ -1,11 +1,12 @@
 using System;
 using TransactionService.Api.ValueObjects;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {
     public class FeeReadModel:FinanceReadModelBase
     {
-        public FeeReadModel(Fee fee, in DateTime billingDate, string transactionType, Guid transactionId,
+        public FeeReadModel(Fee fee, in DateTime billingDate, TransactionType transactionType, Guid transactionId,
             string externalId, DateTime createdOn)
         {
             BillingDate = billingDate;
@@ -14,7 +15,7 @@ namespace TransactionService.Api.ReadModels
             CreatedOn = createdOn;
             TransactionId = transactionId.ToString();
             Label = fee.Label;
-            FeeId = fee.CompanyId;
+            FeeId = fee.FeeId;
             FeeAmount = fee.Amount;
             Type = FinanceType.Fee;
         }

@@ -17,5 +17,13 @@ namespace TransactionServiceWriterSomething
             Username = configurationRoot["RabbitMqUsername"];
             Password = configurationRoot["RabbitMqPassword"];
         }
+
+        public RabbitConfig()
+        {
+            Port = 5672;
+            Host = "127.0.0.1";
+            Username = "guest";
+            Password = "guest";
+        }
     }
 }

@@ -16,6 +16,7 @@ using TransactionService.Api.EventHandlers;
 using TransactionService.Api.Events;
 using TransactionService.Api.ReadModels;
 using TransactionService.Api.Repository;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api
 {
@@ -35,13 +36,14 @@ namespace TransactionService.Api
         private static long _lastEventNumber;
 
         public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository, IMongoDatabase mongoDatabase
-            , IHostingEnvironment env,ITaxLedgerRepository taxLedgerRepository,IFeeLedgerRepository feeLedgerRepository)
+            , IHostingEnvironment env,ITaxLedgerRepository taxLedgerRepository,IFeeLedgerRepository feeLedgerRepository,IEventStoreConnection eventStoreConnection)
         {
             _accountsRepository = accountsRepository;
             _database = mongoDatabase;
             _env = env;
             _taxLedger = taxLedgerRepository.GetTaxLedger();
             _feeLedger = feeLedgerRepository.GetFeeLedger();
+            _conn = eventStoreConnection;
         }
 
         private async Task Start()
@@ -52,7 +54,7 @@ namespace TransactionService.Api
             _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
             _streamName = "$ce-Account";
 
-            await CreateEventStoreConnection();
+//            await CreateEventStoreConnection();
             await CreatePersistenSubscription();
 
             SubscribeCatchup();
@@ -94,17 +96,17 @@ namespace TransactionService.Api
                     case DomainEventTypes.AccountDebited:
                     {
                         var @event =
-                            JsonConvert.DeserializeObject<AccountDebitedEvent>(eventJson);
-                        accountBalance -= @event.Transaction.Amount;
-                        readModel = new TransactionReadModel(@event.Transaction,evt.Event.Created, accountBalance);
+                            JsonConvert.DeserializeObject<Transaction>(eventJson);
+                        accountBalance -= @event.Amount;
+                        readModel = new TransactionReadModel(@event,evt.Event.Created, accountBalance);
                     }
                         break;
                     case DomainEventTypes.AccountCredited:
                     {
                         var @event =
-                            JsonConvert.DeserializeObject<AccountCreditedEvent>(eventJson);
-                        accountBalance += @event.Transaction.Amount;
-                        readModel = new TransactionReadModel(@event.Transaction,evt.Event.Created, accountBalance);
+                            JsonConvert.DeserializeObject<Transaction>(eventJson);
+                        accountBalance += @event.Amount;
+                        readModel = new TransactionReadModel(@event,evt.Event.Created, accountBalance);
                     }
                         break;
                     default:
@@ -117,7 +119,7 @@ namespace TransactionService.Api
                 
                 var taxReadModel = new TaxReadModel(readModel).ToBsonDocument();
                 var billingDate = readModel.Transaction.BillingDate;
-                var transactionType = readModel.Transaction.Description;
+                var transactionType = readModel.Transaction.TransactionType;
                 var transactionId = evt.Event.EventId;
                 var externalId = readModel.Transaction.ExternalId;
                 

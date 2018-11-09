@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Newtonsoft.Json;
 using TransactionService.Api.Events;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.EventHandlers
 {
@@ -12,16 +13,16 @@ namespace TransactionService.Api.EventHandlers
                 return state;
 
             var @event =
-                JsonConvert.DeserializeObject<AccountDebitedEvent>(state.Event);
+                JsonConvert.DeserializeObject<Transaction>(state.Event);
 
-            state.Account.Balance -= @event.Transaction.Amount;
+            state.Account.Balance -= @event.Amount;
 
-            var countryCode = @event.Transaction.CountryCode;
-            var billingDate = @event.Transaction.BillingDate;
-            var tax = @event.Transaction.Tax;
+            var countryCode = @event.CountryCode;
+            var billingDate = @event.BillingDate;
+            var tax = @event.Tax;
             state.TaxLedger.RecordTax(tax, countryCode,billingDate);
 
-            var fees = @event.Transaction.TransactionItems.SelectMany(x => x.SubFees);
+            var fees = @event.TransactionItems.SelectMany(x => x.SubFees);
             state.FeeLedger.RecordFees(fees, billingDate);
 
             return state;

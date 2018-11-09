@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TransactionService.Api.ValueObjects;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.Domain
 {
@@ -17,16 +18,16 @@ namespace TransactionService.Api.Domain
             foreach (var fee in fees)
             {
                 
-                if (!Fees.ContainsKey(fee.CompanyId))
-                    Fees.Add(fee.CompanyId,new Dictionary<int, Dictionary<int, long>>());
+                if (!Fees.ContainsKey(fee.FeeId))
+                    Fees.Add(fee.FeeId,new Dictionary<int, Dictionary<int, long>>());
             
-                if(!Fees[fee.CompanyId].ContainsKey(billingDate.Year))
-                    Fees[fee.CompanyId].Add(billingDate.Year,new Dictionary<int, long>());
+                if(!Fees[fee.FeeId].ContainsKey(billingDate.Year))
+                    Fees[fee.FeeId].Add(billingDate.Year,new Dictionary<int, long>());
             
-                if(!Fees[fee.CompanyId][billingDate.Year].ContainsKey(billingDate.Month))
-                    Fees[fee.CompanyId][billingDate.Year].Add(billingDate.Month,0);
+                if(!Fees[fee.FeeId][billingDate.Year].ContainsKey(billingDate.Month))
+                    Fees[fee.FeeId][billingDate.Year].Add(billingDate.Month,0);
 
-                Fees[fee.CompanyId][billingDate.Year][billingDate.Month] += fee.Amount;
+                Fees[fee.FeeId][billingDate.Year][billingDate.Month] += fee.Amount;
             }
             
         }

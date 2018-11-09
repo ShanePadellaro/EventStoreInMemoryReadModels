@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
+using TransactionService.Api.Controllers;
 
 namespace TransactionService.Api.ValueObjects
 {
     public class AccountDetails 
     {
+        public string AccountId { get; }
         public string Externalid { get; }
         public string Name { get; }
         public string CountryCode { get; }
@@ -11,9 +13,11 @@ namespace TransactionService.Api.ValueObjects
         public int StartingBalance { get; }
 
         [JsonConstructor]
-        public AccountDetails(string externalid, string name, string countryCode, string currencyCode,
+        public AccountDetails(string accountId, string externalid, string name, string countryCode,
+            string currencyCode,
             int startingBalance)
         {
+            AccountId = accountId;
             Externalid = externalid;
             Name = name;
             CountryCode = countryCode;

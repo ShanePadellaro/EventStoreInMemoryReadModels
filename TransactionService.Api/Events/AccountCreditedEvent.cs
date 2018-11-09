@@ -1,16 +1,18 @@
-﻿using TransactionService.Api.ValueObjects;
+﻿using EventStore.ClientAPI;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.Events
 {
-    public class AccountCreditedEvent
+    public class AccountCreditedEvent:DomainEvent<Transaction>
     {
-        public Transaction Transaction { get; }
+        public override Transaction Data { get; }
+        public override string Name => DomainEventTypes.AccountCredited.ToCamelCase();
 
         public AccountCreditedEvent(Transaction transaction)
         {
-            Transaction = transaction;
+            Data = transaction;
+            MetaData = new EventMetaData() {EventVersion = "1"};
         }
-        public static string Name => DomainEventTypes.AccountCredited.ToString();
 
     }
 }

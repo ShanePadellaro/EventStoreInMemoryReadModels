@@ -2,6 +2,7 @@
 using System.Net.Http.Formatting;
 using Newtonsoft.Json;
 using TransactionService.Api.Events;
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.EventHandlers
 {
@@ -13,17 +14,17 @@ namespace TransactionService.Api.EventHandlers
                 return state;
 
             var @event =
-                JsonConvert.DeserializeObject<AccountDebitedEvent>(state.Event,new JsonSerializerSettings(){ContractResolver = new JsonContractResolver(new JsonMediaTypeFormatter())});
+                JsonConvert.DeserializeObject<Transaction>(state.Event,new JsonSerializerSettings(){ContractResolver = new JsonContractResolver(new JsonMediaTypeFormatter())});
 
-            state.Account.Balance += @event.Transaction.Amount;
-            state.Account.CurrentStatement?.MakePayment(@event.Transaction.Amount);
+            state.Account.Balance += @event.Amount;
+            state.Account.CurrentStatement?.MakePayment(@event.Amount);
             
-            var countryCode = @event.Transaction.CountryCode;
-            var billingDate = @event.Transaction.BillingDate;
-            var tax = @event.Transaction.Tax;
+            var countryCode = @event.CountryCode;
+            var billingDate = @event.BillingDate;
+            var tax = @event.Tax;
             state.TaxLedger.RecordTax(tax, countryCode,billingDate);
 
-            var fees = @event.Transaction.TransactionItems.SelectMany(x => x.SubFees);
+            var fees = @event.TransactionItems.SelectMany(x => x.SubFees);
             state.FeeLedger.RecordFees(fees, billingDate);
 
             return state;

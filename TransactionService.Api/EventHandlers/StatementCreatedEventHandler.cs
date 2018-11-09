@@ -12,7 +12,7 @@ namespace TransactionService.Api.EventHandlers
                 return state;
 
             var @event =
-                JsonConvert.DeserializeObject<StatementCreatedEvent>(state.Event);
+                JsonConvert.DeserializeObject<StatementDetails>(state.Event);
 
             var statement = new Statement(@event.BillingDate, @event.IncomingBalance)
             {

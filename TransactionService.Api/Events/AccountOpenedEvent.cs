@@ -1,17 +1,18 @@
-﻿using TransactionService.Api.ValueObjects;
+﻿
+using TransactionService.Api.ValueObjects;
 
 namespace TransactionService.Api.Events
 {
     
-    public class AccountOpenedEvent 
+    public class AccountOpenedEvent:DomainEvent<AccountDetails>
     {
-        public AccountDetails AccountDetails { get; }
 
         public AccountOpenedEvent(AccountDetails accountDetails)
         {
-            AccountDetails = accountDetails;
+            Data = accountDetails;
+            MetaData = new EventMetaData() {EventVersion = "1"};
         }
-        public static string Name => DomainEventTypes.AccountOpened.ToString();
-
+        public override string Name => DomainEventTypes.AccountOpened.ToCamelCase();
+        public override AccountDetails Data { get; }
     }
 }

@@ -13,11 +13,13 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace TransactionServiceWriterSomething
 {
@@ -67,6 +69,8 @@ namespace TransactionServiceWriterSomething
             {
                 g.UseMongoStorage("mongodb://localhost:27017", "hangfire");
             });
+
+            services.AddHostedService<TransactionRequestListener>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

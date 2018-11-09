@@ -1,17 +1,19 @@
-﻿using TransactionService.Api.ValueObjects;
+﻿
+using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.Events
 {
-    public class AccountDebitedEvent
+    public class AccountDebitedEvent:DomainEvent<Transaction>
     {
-        public Transaction Transaction { get; }
 
         public AccountDebitedEvent(Transaction transaction)
         {
-            Transaction = transaction;
+            Data = transaction;
+            MetaData = new EventMetaData() {EventVersion = "1"};
         }
 
-        public static string Name => DomainEventTypes.AccountDebited.ToString();
+        public override string Name => DomainEventTypes.AccountDebited.ToCamelCase();
+        public override Transaction Data { get; }
     }
 }
 
