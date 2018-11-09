@@ -16,6 +16,7 @@ using TransactionService.Api.EventHandlers;
 using TransactionService.Api.Events;
 using TransactionService.Api.ReadModels;
 using TransactionService.Api.Repository;
+using TransactionService.Api.ValueObjects;
 using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api
@@ -68,9 +69,8 @@ namespace TransactionService.Api
                 if (!Enum.TryParse(evt.Event.EventType, true, out DomainEventTypes eventType))
                     return;
 
-                if (eventType != DomainEventTypes.AccountCredited && eventType != DomainEventTypes.AccountDebited)
+                if (eventType != DomainEventTypes.AccountCredited && eventType != DomainEventTypes.AccountDebited && eventType != DomainEventTypes.AccountOpened)
                     return;
-
 
                 var accountId = evt.Event.EventStreamId.Contains("Account", StringComparison.OrdinalIgnoreCase)
                     ? evt.Event.EventStreamId
@@ -108,6 +108,15 @@ namespace TransactionService.Api
                         readModel = new TransactionReadModel(@event,evt.Event.Created, accountBalance);
                     }
                         break;
+                    case DomainEventTypes.AccountOpened:
+                    {
+                        var @event =
+                            JsonConvert.DeserializeObject<AccountDetails>(eventJson);
+                        var account = new Account(@event);
+                        await _database.GetCollection<Account>("accounts").InsertOneAsync(account);
+                        
+                        return;
+                    }
                     default:
                         throw new Exception("Wrong EvenType, should not be here");
                 }
