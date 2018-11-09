@@ -1,6 +1,6 @@
 using System;
 
-namespace TransactionService.Api.Controllers
+namespace TransactionService.Api.Domain
 {
     public class AccountId
     {
