@@ -54,7 +54,6 @@ namespace TransactionService.Api
             _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
             _streamName = "$ce-Account";
 
-//            await CreateEventStoreConnection();
             await CreatePersistenSubscription();
 
             SubscribeCatchup();
@@ -221,19 +220,6 @@ namespace TransactionService.Api
             }
         }
 
-        private async Task CreateEventStoreConnection()
-        {
-            _conn = EventStoreConnection.Create(
-                ConnectionSettings.Create().KeepReconnecting(),
-                ClusterSettings.Create().DiscoverClusterViaGossipSeeds().SetGossipSeedEndPoints(new[]
-                    {
-                        new IPEndPoint(IPAddress.Parse("52.151.78.42"), 2113),
-                        new IPEndPoint(IPAddress.Parse("52.151.79.84"), 2113),
-                        new IPEndPoint(IPAddress.Parse("51.140.14.214"), 2113)
-                    })
-                    .SetGossipTimeout(TimeSpan.FromMilliseconds(500)).Build(),"TransactionService");
-            await _conn.ConnectAsync();
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
