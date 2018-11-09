@@ -189,7 +189,8 @@ namespace TransactionService.Api
 
         private void Dropped(EventStoreCatchUpSubscription sub, SubscriptionDropReason reason, Exception ex)
         {
-            SubscribeCatchup(_lastEventNumber);
+//            SubscribeCatchup(_lastEventNumber);
+            Console.WriteLine($"Catchup sub dropped {reason}");
         }
 
         private void SubscribeCatchup(long lastEventNumber = 0)
@@ -203,7 +204,9 @@ namespace TransactionService.Api
         private void Dropped(EventStorePersistentSubscriptionBase sub, SubscriptionDropReason reason,
             Exception ex)
         {
+            Console.WriteLine($"Persisten sub dropped: {reason}");
             SubscribePersisten();
+
         }
 
         private void SubscribePersisten()

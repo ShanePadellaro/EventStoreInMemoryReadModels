@@ -26,10 +26,10 @@ namespace TransactionServiceWriterSomething
             var result = _database.ListCollections();
             var collections =  result.ToList();
             var names = collections.Select(x => x["name"]?.AsString)
-                .Where(x => x.Contains("Account", StringComparison.OrdinalIgnoreCase)).ToList();
+                .Where(x => x.Contains("Account-", StringComparison.OrdinalIgnoreCase)).ToList();
 
             var accountBalances = new Dictionary<string, long>();
-
+            
             var todaysDate = DateTime.UtcNow;
             var firstDayOfMonth = new DateTime(todaysDate.Year,todaysDate.AddMonths(-1).Month,1,23,59,59);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
@@ -49,13 +49,7 @@ namespace TransactionServiceWriterSomething
             foreach (var account in accountBalances)
             {
                 var statementCreatedEvent = new StatementCreatedEvent(account.Value, lastDayOfMonth);
-                var json = JsonConvert.SerializeObject(statementCreatedEvent,
-                    new JsonSerializerSettings() {ContractResolver = new CamelCasePropertyNamesContractResolver()});
-                var jsonBytes = UTF8Encoding.ASCII.GetBytes(json);
-                var e = new EventData(Guid.NewGuid(), "statementCreated", true,
-                    jsonBytes, null);
-
-                _conn.AppendToStreamAsync(account.Key, ExpectedVersion.Any, e).Wait();
+                _conn.AppendToStreamAsync(account.Key, ExpectedVersion.Any, statementCreatedEvent.EventData).Wait();
             }
         }
     }
