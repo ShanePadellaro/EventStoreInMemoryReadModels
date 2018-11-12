@@ -33,7 +33,7 @@ namespace TransactionService.External.ValueObjects
         public long Amount { get;  set; }
         public long Tax { get;  set; }
         public DateTime BillingDate { get; }
-        public long Taxrate { get;  set; }
+        public decimal Taxrate { get;  set; }
         public string CountryCode { get;  set; }
         public string CurrencyCode { get;  set; }
         public List<TransactionItem> TransactionItems { get;  set; }

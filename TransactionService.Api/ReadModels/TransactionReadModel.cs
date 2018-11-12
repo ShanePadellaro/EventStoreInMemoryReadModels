@@ -1,4 +1,5 @@
 using System;
+using EventStore.ClientAPI;
 using MongoDB.Bson;
 using TransactionService.Api.ValueObjects;
 using TransactionService.External.ValueObjects;
@@ -7,12 +8,16 @@ namespace TransactionService.Api.ReadModels
 {
     public class TransactionReadModel
     {
-        public TransactionReadModel(Transaction transaction, DateTime createdOn, long accountBalance)
+        public TransactionReadModel(Transaction transaction, ResolvedEvent @event, long accountBalance)
         {
             Transaction = transaction;
-            CreatedOn = createdOn;
+            CreatedOn = @event.Event.Created;
             AccountBalance = accountBalance;
-            MetaData = new MetaData();
+            MetaData = new MetaData()
+            {
+                OriginalEventNumber = @event.OriginalEventNumber, EventCreated = @event.Event.Created,
+                EventNumber = @event.Event.EventNumber
+            };
         }
 
         public Transaction Transaction { get; set; }

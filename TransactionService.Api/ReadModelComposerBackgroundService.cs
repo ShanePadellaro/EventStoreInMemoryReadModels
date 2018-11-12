@@ -64,8 +64,7 @@ namespace TransactionService.Api
 
         private async Task GotEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent evt, int? value)
         {
-            try
-            {
+            
                 if (!Enum.TryParse(evt.Event.EventType, true, out DomainEventTypes eventType))
                     return;
 
@@ -88,24 +87,22 @@ namespace TransactionService.Api
 
 
                 var eventJson = Encoding.UTF8.GetString(evt.Event.Data);
-                TransactionReadModel readModel = null;
-
+                Transaction transaction = null;
+                
                 switch (eventType)
                 {
                     case DomainEventTypes.AccountDebited:
                     {
-                        var @event =
+                        transaction=
                             JsonConvert.DeserializeObject<Transaction>(eventJson);
-                        accountBalance -= @event.Amount;
-                        readModel = new TransactionReadModel(@event,evt.Event.Created, accountBalance);
+                        accountBalance -= transaction.Amount;
                     }
                         break;
                     case DomainEventTypes.AccountCredited:
                     {
-                        var @event =
+                        transaction =
                             JsonConvert.DeserializeObject<Transaction>(eventJson);
-                        accountBalance += @event.Amount;
-                        readModel = new TransactionReadModel(@event,evt.Event.Created, accountBalance);
+                        accountBalance += transaction.Amount;
                     }
                         break;
                     case DomainEventTypes.AccountOpened:
@@ -120,30 +117,18 @@ namespace TransactionService.Api
                     default:
                         throw new Exception("Wrong EvenType, should not be here");
                 }
-
-                readModel.MetaData.EventNumber = evt.Event.EventNumber;
-                readModel.MetaData.OriginalEventNumber = evt.OriginalEventNumber;
-                readModel.MetaData.EventCreated = evt.Event.Created;
                 
+                var readModel = new TransactionReadModel(transaction,evt, accountBalance);
                 var taxReadModel = new TaxReadModel(readModel).ToBsonDocument();
-                var billingDate = readModel.Transaction.BillingDate;
-                var transactionType = readModel.Transaction.TransactionType;
-                var transactionId = evt.Event.EventId;
-                var externalId = readModel.Transaction.ExternalId;
-                
                 var feeModels = readModel.Transaction.TransactionItems.SelectMany(x => x.SubFees
-                    .Select(y=>new FeeReadModel(y,billingDate,transactionType,transactionId,externalId,evt.Event.Created).ToBsonDocument())).ToList();
+                    .Select(y=>new FeeReadModel(y,transaction,evt).ToBsonDocument())).ToList();
                 feeModels.Add(taxReadModel);
                 
                 await _database.GetCollection<TransactionReadModel>($"{accountId}-transactions")
                     .InsertOneAsync(readModel);
                 await _database.GetCollection<BsonDocument>("finance")
                     .InsertManyAsync(feeModels.AsEnumerable());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+           
         }
 
         private async Task GotEvent(EventStoreCatchUpSubscription sub, ResolvedEvent e)
