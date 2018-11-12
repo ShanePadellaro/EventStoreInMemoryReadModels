@@ -23,7 +23,7 @@ namespace TransactionService.Api.EventHandlers
             state.TaxLedger.RecordTax(tax, countryCode,billingDate);
 
             var fees = @event.TransactionItems.SelectMany(x => x.SubFees);
-            state.FeeLedger.RecordFees(fees, billingDate);
+            state.FeeLedger.RecordFees(fees, billingDate,countryCode);
 
             return state;
         }

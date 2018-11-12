@@ -10,6 +10,7 @@ namespace TransactionService.Api.ReadModels
         public ObjectId Id { get; set; }
         public DateTime BillingDate { get; set; }
         public TransactionType TransactionType { get; set; }
+        public string ExternalTransactionType { get; set; }
         public string TransactionId { get; set; }
         public string ExternalId { get; set; }
         public FinanceType Type { get; set; }

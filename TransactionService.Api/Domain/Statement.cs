@@ -4,6 +4,12 @@ namespace TransactionService.Api.Domain
 {
     public class Statement
     {
+        public long IncomingBalance { get; set;}
+        public long CurrentBalance { get; set; }
+        public DateTime BillingDate { get; set; }
+        public long ClosingBalance { get; set; }
+        public StatementStatus Status { get; set; }
+        
         public Statement(DateTime billingDate, long incomingBalance)
         {
             BillingDate = billingDate;
@@ -11,10 +17,8 @@ namespace TransactionService.Api.Domain
             Status = StatementStatus.Open;
         }
 
-        public long IncomingBalance { get; set;}
-        public long CurrentBalance { get; set; }
-        public DateTime BillingDate { get; set; }
-        public long ClosingBalance { get; set; }
+
+
 
         public void MakePayment(long amount)
         {
@@ -34,6 +38,5 @@ namespace TransactionService.Api.Domain
             Status = StatementStatus.Closed;
         }
 
-        public StatementStatus Status { get; set; }
     }
 }
