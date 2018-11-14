@@ -24,12 +24,13 @@ namespace TransactionServiceWriterSomething
             private readonly IMongoDatabase _mongoDatabase;
             private readonly RabbitProducer _producer;
 
-            public TransactionRequestListener(IEventStoreConnection eventStoreConnection,IMongoDatabase mongoDatabase)
-                : base("transactionExchange", "transactions", "transactions.new", new RabbitConfig())
+            public TransactionRequestListener(IEventStoreConnection eventStoreConnection,IMongoDatabase mongoDatabase,
+                IConfiguration configuration)
+                : base("transactionExchange", "transactions", "transactions.new", new RabbitConfig(configuration))
             {
                 _eventStoreConnection = eventStoreConnection;
                 _mongoDatabase = mongoDatabase;
-                _producer = new RabbitProducer(new RabbitConfig());
+                _producer = new RabbitProducer(new RabbitConfig(configuration));
             }
 
             protected override async Task<bool> Handle(string message)

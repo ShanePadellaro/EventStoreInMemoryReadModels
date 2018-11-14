@@ -10,20 +10,13 @@ namespace TransactionServiceWriterSomething
         public string Username { get; }
         public string Password { get; }
 
-        public RabbitConfig(IConfigurationRoot configurationRoot)
+        public RabbitConfig(IConfiguration configurationRoot)
         {
-            Port = int.Parse(configurationRoot["RabbitMqPort"]);
-            Host = configurationRoot["RabbitMqHost"];
-            Username = configurationRoot["RabbitMqUsername"];
-            Password = configurationRoot["RabbitMqPassword"];
+            Port = int.Parse(configurationRoot["Config:RabbitMqPort"]);
+            Host = configurationRoot["Config:RabbitMqHost"];
+            Username = configurationRoot["Config:RabbitMqUsername"];
+            Password = configurationRoot["Config:RabbitMqPassword"];
         }
 
-        public RabbitConfig()
-        {
-            Port = 5672;
-            Host = "127.0.0.1";
-            Username = "guest";
-            Password = "guest";
-        }
     }
 }
