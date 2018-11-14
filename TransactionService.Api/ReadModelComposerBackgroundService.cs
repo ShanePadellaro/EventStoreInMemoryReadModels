@@ -37,7 +37,8 @@ namespace TransactionService.Api
         private static long _lastEventNumber;
 
         public ReadModelComposerBackgroundService(IAccountsRepository accountsRepository, IMongoDatabase mongoDatabase
-            , IHostingEnvironment env,ITaxLedgerRepository taxLedgerRepository,IFeeLedgerRepository feeLedgerRepository,IEventStoreConnection eventStoreConnection)
+            , IHostingEnvironment env,ITaxLedgerRepository taxLedgerRepository,IFeeLedgerRepository feeLedgerRepository,
+            IEventStoreConnection eventStoreConnection,UserCredentials userCredentials)
         {
             _accountsRepository = accountsRepository;
             _database = mongoDatabase;
@@ -45,14 +46,14 @@ namespace TransactionService.Api
             _taxLedger = taxLedgerRepository.GetTaxLedger();
             _feeLedger = feeLedgerRepository.GetFeeLedger();
             _conn = eventStoreConnection;
+            _adminCredentials = userCredentials;
         }
 
         private async Task Start()
         {
             _accounts = _accountsRepository.GetAccounts();
             _accountBalances = new Dictionary<string, long>();
-            _startPosition = 4352483;
-            _adminCredentials = new UserCredentials("admin", "Airfi2018Airfi2018");
+            _startPosition = 0;
             _streamName = "$ce-Account";
 
             await CreatePersistenSubscription();
@@ -178,12 +179,14 @@ namespace TransactionService.Api
             Console.WriteLine($"Catchup sub dropped {reason}");
         }
 
-        private void SubscribeCatchup(long lastEventNumber = 0)
+        private void SubscribeCatchup(long lastEventNumber = -1)
         {
-            var position = lastEventNumber == 0 ? _startPosition - 1 : lastEventNumber;
+            var position = lastEventNumber == -1 ? 
+                _startPosition - 1 < 0 ? 0:_startPosition -1 
+                : lastEventNumber;
             _conn.SubscribeToStreamFrom(_streamName, position,
                 new CatchUpSubscriptionSettings(10000, 1000, true, true, "ReadModel"), GotEvent,
-                subscriptionDropped: Dropped, userCredentials: _adminCredentials);
+                subscriptionDropped: Dropped);
         }
 
         private void Dropped(EventStorePersistentSubscriptionBase sub, SubscriptionDropReason reason,
@@ -197,7 +200,7 @@ namespace TransactionService.Api
         private void SubscribePersisten()
         {
             _conn.ConnectToPersistentSubscription(_streamName, "transactionReadModelWriter", GotEvent,
-                userCredentials: _adminCredentials, subscriptionDropped: Dropped);
+                subscriptionDropped: Dropped);
         }
 
         private async Task CreatePersistenSubscription()
