@@ -56,7 +56,7 @@ namespace TransactionService.Api
                     var conn = EventStoreConnection.Create(
                         ConnectionSettings.Create()
                             .SetDefaultUserCredentials(userCredentials)
-                            .KeepReconnecting(),
+                            .KeepReconnecting().KeepRetrying(),
                         ClusterSettings.Create().DiscoverClusterViaGossipSeeds().SetGossipSeedEndPoints(new[]
                             {
                                 new IPEndPoint(IPAddress.Parse("52.151.78.42"), 2113),
@@ -76,7 +76,8 @@ namespace TransactionService.Api
                     var conn = EventStoreConnection.Create(
                         ConnectionSettings.Create()
                             .SetDefaultUserCredentials(userCredentials)
-                            .KeepReconnecting(),
+                            .KeepReconnecting()
+                        .KeepRetrying().UseConsoleLogger().Build(),
                         new Uri(
                             $"tcp://{userName}:{password}@{host}:{port}"));
                     conn.ConnectAsync().Wait();

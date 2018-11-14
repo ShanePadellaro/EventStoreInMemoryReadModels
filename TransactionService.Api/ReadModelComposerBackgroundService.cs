@@ -81,7 +81,7 @@ namespace TransactionService.Api
                     .AsQueryable()
                     .OrderByDescending(x => x._id).FirstOrDefault();
 
-                if (evt.OriginalEventNumber <= (lastTransaction?.MetaData?.OriginalEventNumber ?? 0))
+                if (lastTransaction?.MetaData?.OriginalEventNumber != null && evt.OriginalEventNumber <= lastTransaction?.MetaData?.OriginalEventNumber)
                     return;
 
                 var accountBalance = lastTransaction?.AccountBalance ?? 0L;
@@ -181,10 +181,21 @@ namespace TransactionService.Api
 
         private void SubscribeCatchup(long lastEventNumber = -1)
         {
-            var position = lastEventNumber == -1 ? 
-                _startPosition - 1 < 0 ? 0:_startPosition -1 
-                : lastEventNumber;
-            _conn.SubscribeToStreamFrom(_streamName, position,
+//            var position = lastEventNumber == -1 ? 
+//                _startPosition - 1 < 0 ? 0:_startPosition -1 
+//                : lastEventNumber;
+//
+//            if (lastEventNumber != -1)
+//                position = lastEventNumber;
+//            
+//            long? position = _startPosition -1;
+//
+//            if (position < 0)
+//                position = null;
+            
+            //Needs to be null for start of stream not 0, otherwise skips eventnumber 0
+            
+            _conn.SubscribeToStreamFrom(_streamName, null,
                 new CatchUpSubscriptionSettings(10000, 1000, true, true, "ReadModel"), GotEvent,
                 subscriptionDropped: Dropped);
         }
@@ -200,14 +211,15 @@ namespace TransactionService.Api
         private void SubscribePersisten()
         {
             _conn.ConnectToPersistentSubscription(_streamName, "transactionReadModelWriter", GotEvent,
-                subscriptionDropped: Dropped);
+                subscriptionDropped: Dropped,autoAck:true);
         }
 
         private async Task CreatePersistenSubscription()
         {
             PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
                 .ResolveLinkTos()
-                .StartFrom(_startPosition);
+                .StartFromBeginning()
+                .WithExtraStatistics();
             try
             {
                 await _conn.CreatePersistentSubscriptionAsync(_streamName, "transactionReadModelWriter", settings,
