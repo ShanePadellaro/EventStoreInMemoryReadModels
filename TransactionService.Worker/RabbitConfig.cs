@@ -1,7 +1,7 @@
 using Infrastructure.RabbitMq;
 using Microsoft.Extensions.Configuration;
 
-namespace TransactionServiceWriterSomething
+namespace TransactionService.Worker
 {
     public class RabbitConfig : IRabbitConfig
     {

@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EventStore.ClientAPI;
 using MongoDB.Driver;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TransactionService.Api.Events;
 using TransactionService.Api.ReadModels;
 
-namespace TransactionServiceWriterSomething
+namespace TransactionService.Worker
 {
     public class StatementCreator
     {

@@ -1,22 +1,18 @@
 using System;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.Exceptions;
 using Infrastructure.RabbitMq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TransactionService.Api.Domain;
 using TransactionService.Api.Events;
 using TransactionService.External;
 using TransactionService.External.ValueObjects;
 
-namespace TransactionServiceWriterSomething
+namespace TransactionService.Worker
 {
         public class TransactionRequestListener : RabbitConsumer, IHostedService
         {
