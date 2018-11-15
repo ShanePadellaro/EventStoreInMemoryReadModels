@@ -58,7 +58,7 @@ namespace TransactionService.Api
 
             await CreatePersistenSubscription();
 
-            SubscribeCatchup();
+            SubscribeCatchup(_startPosition - 1);
             SubscribePersisten();
 
         }
@@ -179,7 +179,7 @@ namespace TransactionService.Api
             Console.WriteLine($"Catchup sub dropped {reason}");
         }
 
-        private void SubscribeCatchup(long lastEventNumber = -1)
+        private void SubscribeCatchup(long? position)
         {
 //            var position = lastEventNumber == -1 ? 
 //                _startPosition - 1 < 0 ? 0:_startPosition -1 
@@ -189,13 +189,13 @@ namespace TransactionService.Api
 //                position = lastEventNumber;
 //            
 //            long? position = _startPosition -1;
-//
-//            if (position < 0)
-//                position = null;
+           
+            if (position < 0)
+                position = null;
             
             //Needs to be null for start of stream not 0, otherwise skips eventnumber 0
             
-            _conn.SubscribeToStreamFrom(_streamName, null,
+            _conn.SubscribeToStreamFrom(_streamName, position,
                 new CatchUpSubscriptionSettings(10000, 1000, true, true, "ReadModel"), GotEvent,
                 subscriptionDropped: Dropped);
         }
