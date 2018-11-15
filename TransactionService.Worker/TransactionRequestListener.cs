@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Airfi.Transactions.RabbitMq;
+using Airfi.Transactions.RabbitMq.ValueObjects;
 using EventStore.ClientAPI;
 using Infrastructure.RabbitMq;
 using Microsoft.Extensions.Configuration;
@@ -9,8 +11,6 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using TransactionService.Api.Domain;
 using TransactionService.Api.Events;
-using TransactionService.External;
-using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Worker
 {
@@ -22,7 +22,7 @@ namespace TransactionService.Worker
 
             public TransactionRequestListener(IEventStoreConnection eventStoreConnection,IMongoDatabase mongoDatabase,
                 IConfiguration configuration)
-                : base("transactionExchange", "transactions", "transactions.new", new RabbitConfig(configuration))
+                : base("transactionsExchange", "transactionsQueue", "transactions.new", new RabbitConfig(configuration))
             {
                 _eventStoreConnection = eventStoreConnection;
                 _mongoDatabase = mongoDatabase;

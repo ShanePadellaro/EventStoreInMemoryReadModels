@@ -1,5 +1,5 @@
-﻿using EventStore.ClientAPI;
-using TransactionService.External.ValueObjects;
+﻿using Airfi.Transactions.RabbitMq.ValueObjects;
+using EventStore.ClientAPI;
 
 namespace TransactionService.Api.Events
 {

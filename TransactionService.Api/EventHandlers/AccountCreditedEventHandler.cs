@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Net.Http.Formatting;
+using Airfi.Transactions.RabbitMq.ValueObjects;
 using Newtonsoft.Json;
 using TransactionService.Api.Events;
-using TransactionService.External.ValueObjects;
 
 namespace TransactionService.Api.EventHandlers
 {

@@ -22,8 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Airfi.Transactions.Client\Airfi.Transactions.Client.csproj" />
       <ProjectReference Include="..\TransactionService.Api\TransactionService.Api.csproj" />
-      <ProjectReference Include="..\TransactionService.External\TransactionService.External.csproj" />
     </ItemGroup>
 
 </Project>

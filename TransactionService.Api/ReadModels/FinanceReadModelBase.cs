@@ -1,6 +1,6 @@
 using System;
 using MongoDB.Bson;
-using TransactionService.External.ValueObjects;
+using Airfi.Transactions.RabbitMq.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {

@@ -17,7 +17,7 @@ using TransactionService.Api.Events;
 using TransactionService.Api.ReadModels;
 using TransactionService.Api.Repository;
 using TransactionService.Api.ValueObjects;
-using TransactionService.External.ValueObjects;
+using Airfi.Transactions.RabbitMq.ValueObjects;
 
 namespace TransactionService.Api
 {
