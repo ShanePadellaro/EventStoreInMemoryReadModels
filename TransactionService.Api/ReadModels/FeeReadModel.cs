@@ -1,7 +1,7 @@
 using System;
 using EventStore.ClientAPI;
 using TransactionService.Api.ValueObjects;
-using Airfi.Transactions.RabbitMq.ValueObjects;
+using Airfi.Transactions.Client.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {

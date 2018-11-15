@@ -2,7 +2,7 @@ using System;
 using EventStore.ClientAPI;
 using MongoDB.Bson;
 using TransactionService.Api.ValueObjects;
-using Airfi.Transactions.RabbitMq.ValueObjects;
+using Airfi.Transactions.Client.ValueObjects;
 
 namespace TransactionService.Api.ReadModels
 {

@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Airfi.Transactions.RabbitMq.ValueObjects;
+using Airfi.Transactions.Client.ValueObjects;
 using Newtonsoft.Json;
 using TransactionService.Api.Events;
 

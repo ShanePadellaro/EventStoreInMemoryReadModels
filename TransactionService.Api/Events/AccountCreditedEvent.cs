@@ -1,4 +1,4 @@
-﻿using Airfi.Transactions.RabbitMq.ValueObjects;
+﻿using Airfi.Transactions.Client.ValueObjects;
 using EventStore.ClientAPI;
 
 namespace TransactionService.Api.Events

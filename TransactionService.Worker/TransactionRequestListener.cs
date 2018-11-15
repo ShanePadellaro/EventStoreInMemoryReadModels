@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Airfi.Transactions.RabbitMq;
-using Airfi.Transactions.RabbitMq.ValueObjects;
+using Airfi.Transactions.Client;
+using Airfi.Transactions.Client.ValueObjects;
 using EventStore.ClientAPI;
 using Infrastructure.RabbitMq;
 using Microsoft.Extensions.Configuration;

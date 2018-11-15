@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Airfi.Transactions.RabbitMq.ValueObjects;
+using Airfi.Transactions.Client.ValueObjects;
 
 namespace TransactionService.Api.Domain
 {
