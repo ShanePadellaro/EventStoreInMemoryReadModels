@@ -33,7 +33,7 @@ namespace TransactionServiceWriterSomething
                 _producer = new RabbitProducer(new RabbitConfig(configuration));
             }
 
-            protected override async Task<bool> Handle(string message)
+            protected async Task<bool> Handle(string message)
             {
                 try
                 {
@@ -59,17 +59,22 @@ namespace TransactionServiceWriterSomething
                     _producer.Send("transactionExchange", 
                         $"Message: {message} \nException:{exception.Message}", 
                         "transactions.failed",
-                        "transactions.failed");
+                        "transactions.failed",DeliveryMode.Persistent);
                     return false;
                 }
 
                 return true;
             }
 
+
+            public async Task StartAsync(CancellationToken cancellationToken)
+            {
+                await StartAsync(Handle);
+            }
+
             public Task StopAsync(CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
-                //throw new NotImplementedException();
             }
         }
     }
