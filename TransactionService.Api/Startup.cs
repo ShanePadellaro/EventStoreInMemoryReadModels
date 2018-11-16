@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using Swashbuckle.AspNetCore.Swagger;
 using TransactionService.Api.Repository;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
@@ -83,6 +84,11 @@ namespace TransactionService.Api
                     conn.ConnectAsync().Wait();
                     return conn;
                 });
+                
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new Info { Title = "TransactionService API", Version = "v1" });
+                });
             }
 
             
@@ -105,6 +111,11 @@ namespace TransactionService.Api
         {
             if (_environment.IsDevelopment())
             {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TransactionService API V1");
+                });
                 app.UseDeveloperExceptionPage();
             }
             else
