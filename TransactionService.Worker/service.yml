@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-service-worker
+  labels:
+    app: transaction-service-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction-service-worker
+  template:
+    metadata:
+      labels:
+        app: transaction-service-worker
+    spec:
+      containers:
+      - name: transaction-service-worker
+        image: catalystcontainerregistry.azurecr.io/transactions/transaction-service-worker
+        env:
+        - name: CONFIG__EVENTSTORESINGLENODEHOST
+          value: "transactionservice-persistence"
+        - name: CONFIG__MONGODBCONNECTIONSTRING
+          value: "mongodb://transactionservice-persistence:27017"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://localhost:80"
+        - name: CONFIG__RABBITMQPORT
+          value: "5672"
+        - name: CONFIG__RABBITMQHOST
+          value: "rabbitmq"
+        - name: CONFIG__RABBITMQUSERNAME
+          value: "guest"
+        - name: CONFIG__RABBITMQPASSWORD
+          value: "guest"
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-service-worker
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: transaction-service-worker
