@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Airfi.Transactions.Client\Airfi.Transactions.Client.csproj" />
+        <PackageReference Include="Airfi.Transactions.Client" Version="1.0.0" />
       <ProjectReference Include="..\TransactionService.Api\TransactionService.Api.csproj" />
     </ItemGroup>
 

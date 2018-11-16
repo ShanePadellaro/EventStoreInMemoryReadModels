@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionService.Worker",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionRequestProducer", "TransactionRequestProducer\TransactionRequestProducer.csproj", "{CD1ED95C-DA83-411E-8240-1D282CD8E7B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Airfi.Transactions.Client", "Airfi.Transactions.Client\Airfi.Transactions.Client.csproj", "{93E543C1-1148-48DF-91C9-EA920BB14103}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +24,5 @@ Global
 		{CD1ED95C-DA83-411E-8240-1D282CD8E7B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD1ED95C-DA83-411E-8240-1D282CD8E7B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD1ED95C-DA83-411E-8240-1D282CD8E7B9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93E543C1-1148-48DF-91C9-EA920BB14103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93E543C1-1148-48DF-91C9-EA920BB14103}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93E543C1-1148-48DF-91C9-EA920BB14103}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93E543C1-1148-48DF-91C9-EA920BB14103}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
