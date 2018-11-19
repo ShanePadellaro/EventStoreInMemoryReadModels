@@ -15,6 +15,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Airfi.Transactions.Client" Version="1.0.0" />
+        <PackageReference Include="Airfi.Transactions.Client" Version="1.0.1" />
     </ItemGroup>
 </Project>

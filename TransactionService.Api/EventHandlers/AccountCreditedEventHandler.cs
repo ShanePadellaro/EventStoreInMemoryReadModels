@@ -21,11 +21,12 @@ namespace TransactionService.Api.EventHandlers
             
             var countryCode = @event.CountryCode;
             var billingDate = @event.BillingDate;
+            var currencyCode = @event.CurrencyCode;
             var tax = @event.Tax;
             state.TaxLedger.RecordTax(tax, countryCode,billingDate);
 
             var fees = @event.TransactionItems.SelectMany(x => x.SubFees);
-            state.FeeLedger.RecordFees(fees, billingDate,countryCode);
+            state.FeeLedger.RecordFees(fees, billingDate,currencyCode);
 
             return state;
         }

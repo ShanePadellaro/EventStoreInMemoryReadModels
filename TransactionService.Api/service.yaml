@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: transaction-service-api
-        image: catalystcontainerregistry.azurecr.io/transactions/transaction-service-api
+        image: catalystcontainerregistry.azurecr.io/transactions/transaction-service-api:1.0.1
         env:
         - name: CONFIG__EVENTSTORESINGLENODEHOST
           value: "transactionservice-persistence"
